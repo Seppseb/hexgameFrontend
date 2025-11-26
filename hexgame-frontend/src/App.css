@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+#root {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Add this to your main CSS file (index.css or app.css) */
+.dice-face {
+  /* Basic styling for the visual block */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  border: 2px solid #333; /* Darker border */
+}
+
+/* Keyframe animation for a subtle shake effect */
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  25% { transform: translate(-1px, -2px) rotate(-1deg); }
+  50% { transform: translate(-3px, 0px) rotate(1deg); }
+  75% { transform: translate(1px, 2px) rotate(-1deg); }
+  100% { transform: translate(1px, -2px) rotate(0deg); }
+}
+
+/* Apply the shake animation when the dice is rolling */
+.dice-face.rolling {
+  /* This is the key for the visual roll/shake */
+  animation: shake 0.1s infinite;
+  /* Add a subtle shadow or filter to enhance the rolling look */
+  filter: brightness(1.2);
+}
