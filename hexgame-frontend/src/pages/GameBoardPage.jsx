@@ -28,7 +28,12 @@ export default function GameBoardPage() {
   const [diceValues, setDiceValues] = useState([0, 0]); // To hold the values from the server
 
 
-  //TODO handle show player order, make player page dynamic
+  //TODO handle show player order, make player page dynamic -> spit player pannels in quadrands, change backgroudncolor of whos turn, show own cars but not of other players
+  
+
+  //TODO handle dice form start turn event
+  //TODO add end turn button
+  //TODO show ressources
 
 
   const [isPlacingVillage, setIsPlacingVillage] = useState(false);
