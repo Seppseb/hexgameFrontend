@@ -2,12 +2,12 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { getGame, joinGame, startGame } from "../api/gamesApi";
 import { useGameWebSocket } from "../hooks/useGameWebSocket";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function GameDetailPage() {
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(getCookie("username"));
   const [players, setPlayers] = useState("");
   const [playerNumber, setPlayerNumber] = useState(0);
   const [playerId, setPlayerId] = useState(getCookie("userId"));
