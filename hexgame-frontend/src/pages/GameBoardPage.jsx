@@ -22,6 +22,7 @@ export default function GameBoardPage() {
   const [players, setPlayers] = useState("");
   const [playerNumber, setPlayerNumber] = useState(0);
   const [playerId, setPlayerId] = useState(getCookie("userId"));
+  const [currentPlayer, setCurrentPlayer] = useState(null);
   const [isOwner, setisOwner] = useState(false);
   
   
@@ -37,7 +38,7 @@ export default function GameBoardPage() {
 
   //TODO add color to playername in board
   //TODO add logging
-  //TODO upgrade to city
+  //TODO upgrade to city -> handle isBuildingCity
   //TODO only let some spots build for initital roads -> array of possible spots for roads after placing?, after that villages and roads -> each spot has can build map of player to boolean in backend for frontend to decide color
   //TODO add bank buying
   //TODO add autoplay after some seconds
@@ -111,6 +112,7 @@ export default function GameBoardPage() {
       if (!game || !game.players) return;
       const names = Object.values(game.players).map((p) => p.name);
       setPlayerNumber(names.length);
+      setCurrentPlayer(game.players[playerId]);
     }
   
     useEffect(() => {
@@ -174,9 +176,12 @@ export default function GameBoardPage() {
   
   const handlePopupClose = () => {
     setShowDicePopup(false);
-    if (!game || !game.state || game.state !== "ROLL_FOR_POSITION") {
+    if (!game || !game.state || game.state === "ROLL_FOR_POSITION") {
       sendReady(gameId);
+    } else {
+
     }
+
   };
 
   const handleBuild = (row, col) => {
@@ -197,7 +202,7 @@ export default function GameBoardPage() {
       {/* ... existing layout ... */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/5 bg-emerald-800 border-r border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="left" players={game && game.players ? game.players : null}/>
+          <PlayerPanel side="left" players={game && game.players ? game.players : null } currentPlayerId={currentPlayer?.userId}/>
         </div>
         <div
           className="flex-1 bg-slate-900 relative overflow-hidden"
@@ -222,14 +227,16 @@ export default function GameBoardPage() {
               onBuild={handleBuild}
               onBuildRoad={handleBuildRoad}
               isPlacingVillage={isPlacingVillage}
+              isPlacingCity={true}
               isPlacingRoad={isPlacingRoad}
+              currentPlayerColor={currentPlayer?.color}
             />
           </div>
 
           <div className="pointer-events-none absolute inset-0 border-4 border-emerald-950"></div>
         </div>
         <div className="w-1/5 bg-emerald-800 border-l border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="right" players={game && game.players ? game.players : null} />
+          <PlayerPanel side="right" players={game && game.players ? game.players : null} currentPlayerId={currentPlayer?.userId} />
         </div>
       </div>
       <div className="h-32 bg-emerald-950 border-t border-emerald-800">
