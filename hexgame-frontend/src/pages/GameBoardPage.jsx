@@ -202,7 +202,7 @@ export default function GameBoardPage() {
       {/* ... existing layout ... */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/5 bg-emerald-800 border-r border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="left" players={game && game.players ? game.players : null } currentPlayerId={currentPlayer?.userId}/>
+          <PlayerPanel side="left" players={game && game.players ? game.players : null } currentPlayerId={currentPlayer?.userId} gameId={gameId}/>
         </div>
         <div
           className="flex-1 bg-slate-900 relative overflow-hidden"
@@ -236,7 +236,7 @@ export default function GameBoardPage() {
           <div className="pointer-events-none absolute inset-0 border-4 border-emerald-950"></div>
         </div>
         <div className="w-1/5 bg-emerald-800 border-l border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="right" players={game && game.players ? game.players : null} currentPlayerId={currentPlayer?.userId} />
+          <PlayerPanel side="right" players={game && game.players ? game.players : null} currentPlayerId={currentPlayer?.userId} gameId={gameId} />
         </div>
       </div>
       <div className="h-32 bg-emerald-950 border-t border-emerald-800">

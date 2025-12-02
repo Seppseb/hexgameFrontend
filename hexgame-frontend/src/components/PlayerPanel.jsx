@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { bankTrade } from "../api/gamesApi";
 
 function ResourceControl({ label, isPlayer, currentValue, changeValue, onChange }) {
   // Logic: Down arrow should be hidden if giving away more than you have, 
@@ -80,7 +81,7 @@ function ResourceControl({ label, isPlayer, currentValue, changeValue, onChange 
   );
 }
 
-export default function PlayerPanel({ side = "left", players, currentPlayerId }) {
+export default function PlayerPanel({ side = "left", players, currentPlayerId, gameId }) {
   const [pendingChanges, setPendingChanges] = useState({});
 
   const handleResourceChange = (resource, delta) => {
@@ -115,27 +116,37 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId })
   const resources = ["wood", "clay", "wheat", "wool", "stone"];
 
   const onBankTrade = () => {
-    const tradeFactor = {
-      wood: 4,
-      clay: 4,
-      wheat: 4,
-      wool: 4,
-      stone: 4,
-    };
+    if (!currentPlayerId) return;
+    if (!players) return;
+    if (!players[currentPlayerId]) return;
+    if (!players[currentPlayerId].tradeFactor) return;
+    if (!gameId) return;
     
-    let totalPlus = 0;
-    let totalMinus = 0;
+    let balance = 0;
+
+    let wood = 0;
+    let clay = 0;
+    let wheat = 0;
+    let wool = 0;
+    let stone = 0;
     for (const res in pendingChanges) {
       console.log(res);
       let val = pendingChanges[res];
+      if (res == "wood") wood = val;
+      if (res == "clay") clay = val;
+      if (res == "wheat") wheat = val;
+      if (res == "wool") wool = val;
+      if (res == "stone") stone = val;
       if (val > 0) {
-        totalMinus+= val;
+        balance+= val * players[currentPlayerId].tradeFactor[res];
       } else {
-        totalPlus+= val * tradeFactor[res];
+        balance+= val;
       }
     }
-    if (totalMinus === totalPlus) {
+    console.log(balance);
+    if (balance === 0) {
       console.log("send trade req");
+      bankTrade(gameId, wood, clay, wheat, wool, stone);
     }
   };
 
@@ -173,7 +184,7 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId })
                       key={res}
                       isPlayer={player.userId === currentPlayerId}
                       label={res}
-                      currentValue={player[res]}
+                      currentValue={player.resBalance[res]}
                       changeValue={currentChange}
                       onChange={(delta) => handleResourceChange(res, delta)}
                     />

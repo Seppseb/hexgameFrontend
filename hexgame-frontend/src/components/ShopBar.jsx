@@ -18,7 +18,7 @@ export default function ShopBar({ onEndTurn, bank, log }) {
     return (
       <div className="flex justify-around items-center h-full px-6">
           <p className="font-semibold">{logMessage}</p>
-          <p className="font-semibold">Bank wood: {bank?.wood} clay: {bank?.clay} wheat: {bank?.wheat} wool: {bank?.wool} stone: {bank?.stone}</p>
+          <p className="font-semibold">Bank wood: {bank?.resBalance["wood"]} clay: {bank?.resBalance["clay"]} wheat: {bank?.resBalance["wheat"]} wool: {bank?.resBalance["wool"]} stone: {bank?.resBalance["stone"]}</p>
         <button onClick={onEndTurn} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
           End Turn
         </button>
