@@ -4,7 +4,7 @@ import HexNode from "./HexNode";
 import HexPath from "./HexPath";
 import BuildMenu from "./BuildMenu";
 
-export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingVillage, isPlacingCity, isPlacingRoad, currentPlayerColor }) {
+export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingVillage, isPlacingCity, isPlacingRoad, playerColor }) {
   const rowConfig = [3, 4, 5, 4, 3];
 
   // --- STATE ---
@@ -159,7 +159,7 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingVillage
                 return (
                 <React.Fragment key={`n-${rIndex}-${cIndex}`}>
                     <HexNode
-                        currentPlayerColor={currentPlayerColor}
+                        playerColor={playerColor}
                         color={node.color} 
                         isPlacingVillage={isPlacingVillage}
                         isPlacingCity={isPlacingCity}

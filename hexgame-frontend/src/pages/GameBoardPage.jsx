@@ -1,11 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { useGameWebSocket } from "../hooks/useGameWebSocket";
-import { useNavigate } from "react-router-dom";
 import PlayerPanel from "../components/PlayerPanel";
 import ShopBar from "../components/ShopBar";
 import HexBoard from "../components/HexBoard";
-import { getGame, sendReady, build, buildRoad, endTurn } from "../api/gamesApi";
+import { getGame, sendReady, build, buildRoad } from "../api/gamesApi";
 import DiceRollPopup from "../components/DiceRollPopup"; 
 import { AnimatePresence } from "framer-motion";
 
@@ -17,13 +16,9 @@ export default function GameBoardPage() {
 
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
-  const [name, setName] = useState("");
   const [log, setLog] = useState("");
-  const [players, setPlayers] = useState("");
-  const [playerNumber, setPlayerNumber] = useState(0);
   const [playerId, setPlayerId] = useState(getCookie("userId"));
-  const [currentPlayer, setCurrentPlayer] = useState(null);
-  const [isOwner, setisOwner] = useState(false);
+  const [player, setPlayer] = useState(null);
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
   
   const [showDicePopup, setShowDicePopup] = useState(false);
@@ -34,15 +29,11 @@ export default function GameBoardPage() {
   
 
 
-  //TODO IMPORTANT fix bug, first placing of initital village isnt notified, maybe only if not owner? works on reload
-
-  //TODO add color to playername in board
   //TODO add logging
-  //TODO upgrade to city -> handle isBuildingCity
   //TODO only let some spots build for initital roads -> array of possible spots for roads after placing?, after that villages and roads -> each spot has can build map of player to boolean in backend for frontend to decide color
-  //TODO add bank buying
   //TODO add autoplay after some seconds
-  //TODO add special card buying
+  //TODO add special card using
+  //TODO handle 7 dice
   //TODO add scoring, winning
   //TODO hide some infos
   //TODO push to server pipeline
@@ -90,63 +81,52 @@ export default function GameBoardPage() {
     }
   }, [isConnected, gameId]);
 
-  const navigate = useNavigate();
-
   function getCookie(key) {
     var b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
     return b ? b.pop() : "";
   }
 
+  useEffect(() => {
+    fetchGame();
+  }, [gameId]);
+  
+  const fetchGame = async () => {
+    const res = await getGame(gameId);
+    setGame(res.data);
+  };
+  
     
-  
-    const fetchGame = async () => {
-      const res = await getGame(gameId);
-      setGame(res.data);
-    };
-  
-    useEffect(() => {
-      if (game) parsePlayers();
-    }, [game]);
-  
-    function parsePlayers() {
-      if (!game || !game.players) return;
-      const names = Object.values(game.players).map((p) => p.name);
-      setPlayerNumber(names.length);
-      setCurrentPlayer(game.players[playerId]);
-    }
-  
-    useEffect(() => {
-      fetchGame();
-    }, [gameId]);
-  
-    useEffect(() => {
-      setisOwner(playerId && game && game.ownerId && playerId === game.ownerId);
-      setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
+  useEffect(() => {
+    setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
 
-      if (!playerId || playerId !== game?.currentPlayer?.userId) {
-        setIsPlacingVillage(false);
-        setIsPlacingRoad(false);
-        console.log("case1");
-      } else {
-        if (game.state == 'PLACEMENT') {
-          if (game.initialIsPlacingRoad) {
-            setIsPlacingVillage(false);
-            setIsPlacingRoad(true);
-            console.log("case2");
-          } else {
-            setIsPlacingVillage(true);
-            setIsPlacingRoad(false);
-            console.log("case3");
-          }
+    if (!!game && !!game.players) {
+      setPlayer(game.players[playerId]);
+    }
+
+    if (!playerId || playerId !== game?.currentPlayer?.userId) {
+      setIsPlacingVillage(false);
+      setIsPlacingRoad(false);
+      console.log("case1");
+    } else {
+      if (game.state == 'PLACEMENT') {
+        if (game.initialIsPlacingRoad) {
+          setIsPlacingVillage(false);
+          setIsPlacingRoad(true);
+          console.log("case2");
         } else {
           setIsPlacingVillage(true);
-          setIsPlacingRoad(true);
-          console.log("case4");
+          setIsPlacingRoad(false);
+          console.log("case3");
         }
+      } else {
+        setIsPlacingVillage(true);
+        setIsPlacingRoad(true);
+        console.log("case4");
       }
-      console.log("village: " + isPlacingVillage)
-      console.log("road: " + isPlacingRoad)
-    }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad]);
+    }
+    console.log("village: " + isPlacingVillage)
+    console.log("road: " + isPlacingRoad)
+  }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad]);
 
   // center on load
   useEffect(() => {
@@ -200,7 +180,7 @@ export default function GameBoardPage() {
       {/* ... existing layout ... */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/5 bg-emerald-800 border-r border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="left" players={game && game.players ? game.players : null } currentPlayerId={currentPlayer?.userId} gameId={gameId} isPlayerTurn={isPlayerTurn}/>
+          <PlayerPanel side="left" players={game && game.players ? game.players : null } playerId={playerId} gameId={gameId} isPlayerTurn={isPlayerTurn}/>
         </div>
         <div
           className="flex-1 bg-slate-900 relative overflow-hidden"
@@ -227,14 +207,14 @@ export default function GameBoardPage() {
               isPlacingVillage={isPlacingVillage}
               isPlacingCity={true}
               isPlacingRoad={isPlacingRoad}
-              currentPlayerColor={currentPlayer?.color}
+              playerColor={player?.color}
             />
           </div>
 
           <div className="pointer-events-none absolute inset-0 border-4 border-emerald-950"></div>
         </div>
         <div className="w-1/5 bg-emerald-800 border-l border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="right" players={game && game.players ? game.players : null} currentPlayerId={currentPlayer?.userId} gameId={gameId} isPlayerTurn={isPlayerTurn} />
+          <PlayerPanel side="right" players={game && game.players ? game.players : null} playerId={player?.userId} gameId={gameId} isPlayerTurn={isPlayerTurn} />
         </div>
       </div>
       <div className="h-32 bg-emerald-950 border-t border-emerald-800">

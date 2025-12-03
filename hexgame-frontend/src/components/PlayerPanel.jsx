@@ -81,7 +81,7 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeVa
   );
 }
 
-export default function PlayerPanel({ side = "left", players, currentPlayerId, gameId, isPlayerTurn }) {
+export default function PlayerPanel({ side = "left", players, playerId, gameId, isPlayerTurn }) {
   const [pendingChanges, setPendingChanges] = useState({});
   const [canTradeBank, setCanTradeBank] = useState(false);
 
@@ -95,17 +95,17 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
   };
 
   useEffect(() => {
-    if (!currentPlayerId) return;
+    if (!playerId) return;
     if (!players) return;
-    if (!players[currentPlayerId]) return;
-    if (!players[currentPlayerId].tradeFactor) return;
+    if (!players[playerId]) return;
+    if (!players[playerId].tradeFactor) return;
 
     let balance = 0;
 
     for (const res in pendingChanges) {
       let val = pendingChanges[res];
       if (val > 0) {
-        balance+= val * players[currentPlayerId].tradeFactor[res];
+        balance+= val * players[playerId].tradeFactor[res];
       } else {
         balance+= val;
       }
@@ -147,10 +147,10 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
   const resources = ["wood", "clay", "wheat", "wool", "stone"];
 
   const onBankTrade = () => {
-    if (!currentPlayerId) return;
+    if (!playerId) return;
     if (!players) return;
-    if (!players[currentPlayerId]) return;
-    if (!players[currentPlayerId].tradeFactor) return;
+    if (!players[playerId]) return;
+    if (!players[playerId].tradeFactor) return;
     
     if (!gameId) return;
     
@@ -181,7 +181,7 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
             <div
               key={player.name}
               className={`bg-emerald-700 rounded-xl p-3 shadow text-sm text-center text-white 
-                ${player.userId === currentPlayerId ? 'border-2 border-yellow-400' : ''}`
+                ${player.userId === playerId ? 'border-2 border-yellow-400' : ''}`
               }
             >
               <p className="font-semibold mb-2 flex justify-center items-center gap-2">
@@ -205,7 +205,7 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
                   return (
                     <ResourceControl
                       key={res}
-                      isPlayer={player.userId === currentPlayerId}
+                      isPlayer={player.userId === playerId}
                       isPlayerTurn={isPlayerTurn}
                       label={res}
                       currentValue={player.resBalance[res]}
@@ -217,7 +217,7 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
               </div>
 
               {
-                player.userId === currentPlayerId && canTradeBank && isPlayerTurn && <div>
+                player.userId === playerId && canTradeBank && isPlayerTurn && <div>
                   <button onClick={onBankTrade} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
                     Trade with Bank
                   </button>

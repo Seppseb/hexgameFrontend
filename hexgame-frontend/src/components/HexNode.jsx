@@ -2,7 +2,7 @@
 import React from 'react';
 
 export default function HexNode({ 
-  currentPlayerColor,
+  playerColor,
   color, 
   isPlacingVillage,
   isPlacingCity,
@@ -31,7 +31,7 @@ export default function HexNode({
   
   // --- 2. INTERACTIVITY CHECK ---
   // Only beige nodes are clickable
-  const isInteractive = color === "beige" || (color === currentPlayerColor && buildFactor == 1 && isPlacingCity); 
+  const isInteractive = color === "beige" || (color === playerColor && buildFactor == 1 && isPlacingCity); 
 
   return (
     <div
