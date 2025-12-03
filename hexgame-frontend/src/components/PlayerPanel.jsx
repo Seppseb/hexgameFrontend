@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { bankTrade } from "../api/gamesApi";
 
-function ResourceControl({ label, isPlayer, currentValue, changeValue, onChange }) {
+function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeValue, onChange }) {
   // Logic: Down arrow should be hidden if giving away more than you have, 
   // i.e., the current resource amount plus the change must be >= 0.
   // NOTE: Your current logic (>= 1) means you must keep at least 1 resource, which is a valid game rule.
@@ -36,7 +36,7 @@ function ResourceControl({ label, isPlayer, currentValue, changeValue, onChange 
       
       {/* COLUMN 3: Interaction Area (Fixed width w-24 to RESERVE SPACE) */}
       <div className="w-24 flex items-center justify-center">
-        {isPlayer ? (
+        {isPlayer && isPlayerTurn ? (
           <>
             {/* Down Arrow */}
             <button
@@ -81,17 +81,48 @@ function ResourceControl({ label, isPlayer, currentValue, changeValue, onChange 
   );
 }
 
-export default function PlayerPanel({ side = "left", players, currentPlayerId, gameId }) {
+export default function PlayerPanel({ side = "left", players, currentPlayerId, gameId, isPlayerTurn }) {
   const [pendingChanges, setPendingChanges] = useState({});
+  const [canTradeBank, setCanTradeBank] = useState(false);
 
   const handleResourceChange = (resource, delta) => {
-    const key = `${resource}`;
+
     setPendingChanges((prev) => {
-      const currentChange = prev[key] || 0;
+      const currentChange = prev[resource] || 0;
       const newChange = currentChange + delta;
-      return { ...prev, [key]: newChange };
+      return { ...prev, [resource]: newChange };
     });
   };
+
+  useEffect(() => {
+    if (!currentPlayerId) return;
+    if (!players) return;
+    if (!players[currentPlayerId]) return;
+    if (!players[currentPlayerId].tradeFactor) return;
+
+    let balance = 0;
+
+    for (const res in pendingChanges) {
+      let val = pendingChanges[res];
+      if (val > 0) {
+        balance+= val * players[currentPlayerId].tradeFactor[res];
+      } else {
+        balance+= val;
+      }
+    }
+    setCanTradeBank(balance === 0);
+  }, [pendingChanges]);
+
+  const resetResourceChange = () => {
+    for (const res in pendingChanges) {
+      pendingChanges[res] = 0;
+    }
+  };
+
+  useEffect(() => {
+    resetResourceChange();
+  }, [isPlayerTurn]);
+
 
   let playersOfThisSide = [];
   for (const id in players) {
@@ -120,9 +151,10 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
     if (!players) return;
     if (!players[currentPlayerId]) return;
     if (!players[currentPlayerId].tradeFactor) return;
+    
     if (!gameId) return;
     
-    let balance = 0;
+    if (!canTradeBank) return;
 
     let wood = 0;
     let clay = 0;
@@ -130,24 +162,15 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
     let wool = 0;
     let stone = 0;
     for (const res in pendingChanges) {
-      console.log(res);
       let val = pendingChanges[res];
       if (res == "wood") wood = val;
       if (res == "clay") clay = val;
       if (res == "wheat") wheat = val;
       if (res == "wool") wool = val;
       if (res == "stone") stone = val;
-      if (val > 0) {
-        balance+= val * players[currentPlayerId].tradeFactor[res];
-      } else {
-        balance+= val;
-      }
     }
-    console.log(balance);
-    if (balance === 0) {
-      console.log("send trade req");
-      bankTrade(gameId, wood, clay, wheat, wool, stone);
-    }
+    bankTrade(gameId, wood, clay, wheat, wool, stone);
+    resetResourceChange();
   };
 
   return (
@@ -183,6 +206,7 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
                     <ResourceControl
                       key={res}
                       isPlayer={player.userId === currentPlayerId}
+                      isPlayerTurn={isPlayerTurn}
                       label={res}
                       currentValue={player.resBalance[res]}
                       changeValue={currentChange}
@@ -193,7 +217,7 @@ export default function PlayerPanel({ side = "left", players, currentPlayerId, g
               </div>
 
               {
-                player.userId === currentPlayerId && <div>
+                player.userId === currentPlayerId && canTradeBank && isPlayerTurn && <div>
                   <button onClick={onBankTrade} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
                     Trade with Bank
                   </button>

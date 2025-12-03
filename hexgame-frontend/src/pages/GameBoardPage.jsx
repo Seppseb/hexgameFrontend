@@ -24,7 +24,7 @@ export default function GameBoardPage() {
   const [playerId, setPlayerId] = useState(getCookie("userId"));
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [isOwner, setisOwner] = useState(false);
-  
+  const [isPlayerTurn, setIsPlayerTurn] = useState(false);
   
   const [showDicePopup, setShowDicePopup] = useState(false);
   const [diceValues, setDiceValues] = useState([0, 0]); // To hold the values from the server
@@ -121,6 +121,8 @@ export default function GameBoardPage() {
   
     useEffect(() => {
       setisOwner(playerId && game && game.ownerId && playerId === game.ownerId);
+      setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
+
       if (!playerId || playerId !== game?.currentPlayer?.userId) {
         setIsPlacingVillage(false);
         setIsPlacingRoad(false);
@@ -192,17 +194,13 @@ export default function GameBoardPage() {
     buildRoad(gameId, row, col);
   };
 
-  const handleEndTurn = () => {
-    endTurn(gameId);
-  };
-
 
   return (
     <div className="flex flex-col h-screen w-screen bg-emerald-900 text-white">
       {/* ... existing layout ... */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/5 bg-emerald-800 border-r border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="left" players={game && game.players ? game.players : null } currentPlayerId={currentPlayer?.userId} gameId={gameId}/>
+          <PlayerPanel side="left" players={game && game.players ? game.players : null } currentPlayerId={currentPlayer?.userId} gameId={gameId} isPlayerTurn={isPlayerTurn}/>
         </div>
         <div
           className="flex-1 bg-slate-900 relative overflow-hidden"
@@ -236,14 +234,15 @@ export default function GameBoardPage() {
           <div className="pointer-events-none absolute inset-0 border-4 border-emerald-950"></div>
         </div>
         <div className="w-1/5 bg-emerald-800 border-l border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="right" players={game && game.players ? game.players : null} currentPlayerId={currentPlayer?.userId} gameId={gameId} />
+          <PlayerPanel side="right" players={game && game.players ? game.players : null} currentPlayerId={currentPlayer?.userId} gameId={gameId} isPlayerTurn={isPlayerTurn} />
         </div>
       </div>
       <div className="h-32 bg-emerald-950 border-t border-emerald-800">
         <ShopBar 
-          onEndTurn= {handleEndTurn}
+          gameId = {gameId}
           bank = {game?.bank}
           log = {log}
+          isPlayerTurn = {isPlayerTurn && game?.state === 'IN_PROGRESS'}
         />
       </div>
 
