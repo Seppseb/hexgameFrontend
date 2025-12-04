@@ -1,11 +1,11 @@
-// HexNode.jsx
 import React from 'react';
 
 export default function HexNode({ 
   playerColor,
   color, 
-  isPlacingVillage,
-  isPlacingCity,
+  isPlacingInitialVillage,
+  isBuildPhase,
+  canPlaceVillage,
   buildFactor, 
   top, 
   left, 
@@ -13,9 +13,9 @@ export default function HexNode({
 }) {
 
   // --- 1. VISIBILITY CHECK ---
-  // The User Requirement: "node should not show if the owner is null"
-  if (color === null) return null;
-  if (color == "beige" && !isPlacingVillage) return null;
+  if (color === null) return null; //color null means no build + no build possible
+
+  if (color == "beige" && !isPlacingInitialVillage && !(isBuildPhase && canPlaceVillage)) return null; //beige-> buildspot, but only if initial buiild phase or build phase and spot ok
 
   const palette = {
     red: "#ef4444",
@@ -30,8 +30,8 @@ export default function HexNode({
   const fill = palette[color] || "#9ca3af";
   
   // --- 2. INTERACTIVITY CHECK ---
-  // Only beige nodes are clickable
-  const isInteractive = color === "beige" || (color === playerColor && buildFactor == 1 && isPlacingCity); 
+  // Only beige nodes are clickable or villages that belong to user in build phase
+  const isInteractive = color === "beige" || (color === playerColor && buildFactor == 1 && isBuildPhase); 
 
   return (
     <div

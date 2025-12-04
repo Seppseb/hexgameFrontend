@@ -38,8 +38,8 @@ export default function GameBoardPage() {
   //TODO hide some infos
   //TODO push to server pipeline
 
-  const [isPlacingVillage, setIsPlacingVillage] = useState(false);
-  const [isPlacingRoad, setIsPlacingRoad] = useState(false);
+  const [isPlacingInitialVillage, setIsPlacingInitialVillage] = useState(false);
+  const [isPlacingInitialRoad, setIsPlacingInitialRoad] = useState(false);
 
 
   const handleWebSocketMessage = useCallback((event) => {
@@ -57,7 +57,7 @@ export default function GameBoardPage() {
       }
     }
     else if (event.type === 'INITIAL_PLACE' && event.playerId === playerId) {
-      //setIsPlacingVillage(true);
+      //setIsPlacingInitialVillage(true);
     }
     else if (event.type === 'START_TURN' && event.playerId === playerId) {
       // Assume the dice values are in the event payload
@@ -99,33 +99,33 @@ export default function GameBoardPage() {
   useEffect(() => {
     setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
 
-    if (!!game && !!game.players) {
+    if (!!game && !!game.players && !!playerId) {
       setPlayer(game.players[playerId]);
     }
 
     if (!playerId || playerId !== game?.currentPlayer?.userId) {
-      setIsPlacingVillage(false);
-      setIsPlacingRoad(false);
+      setIsPlacingInitialVillage(false);
+      setIsPlacingInitialRoad(false);
       console.log("case1");
     } else {
       if (game.state == 'PLACEMENT') {
         if (game.initialIsPlacingRoad) {
-          setIsPlacingVillage(false);
-          setIsPlacingRoad(true);
+          setIsPlacingInitialVillage(false);
+          setIsPlacingInitialRoad(true);
           console.log("case2");
         } else {
-          setIsPlacingVillage(true);
-          setIsPlacingRoad(false);
+          setIsPlacingInitialVillage(true);
+          setIsPlacingInitialRoad(false);
           console.log("case3");
         }
       } else {
-        setIsPlacingVillage(true);
-        setIsPlacingRoad(true);
+        setIsPlacingInitialVillage(false);
+        setIsPlacingInitialRoad(false);
         console.log("case4");
       }
     }
-    console.log("village: " + isPlacingVillage)
-    console.log("road: " + isPlacingRoad)
+    console.log("village: " + isPlacingInitialVillage)
+    console.log("road: " + isPlacingInitialRoad)
   }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad]);
 
   // center on load
@@ -204,10 +204,10 @@ export default function GameBoardPage() {
               board ={ game && game.board ? game.board : null }
               onBuild={handleBuild}
               onBuildRoad={handleBuildRoad}
-              isPlacingVillage={isPlacingVillage}
-              isPlacingCity={true}
-              isPlacingRoad={isPlacingRoad}
-              playerColor={player?.color}
+              isPlacingInitialVillage={isPlacingInitialVillage}
+              isPlacingInitialRoad={isPlacingInitialRoad}
+              isBuildPhase={game?.state === 'IN_PROGRESS' && isPlayerTurn}
+              player={player}
             />
           </div>
 

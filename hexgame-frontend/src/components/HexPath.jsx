@@ -2,17 +2,24 @@ import React from 'react';
 
 //TODO new atribute isPlaceable which contains array of users that can place road in backend, if placeable send color beige, remove isPlacing road , then same for village
 
+
+//TODO adust stuff here
 export default function HexPath({ 
   color, 
-  isPlacingRoad,
+  isPlacingInitialRoad,
+  isBuildPhase,
+  canPlaceRoad,
+  canPlaceInitialRoad,
   angle, 
   top, 
   left, 
   onClick 
 }) {
-  // If no color/owner, the path doesn't exist or is not buildable
-  if (color === null) return null;
-  if (color == "beige" && !isPlacingRoad) return null;
+
+  if (color === null) return null; //color null means no build + no build possible
+
+  if (color == "beige" && !(isPlacingInitialRoad && canPlaceInitialRoad) && !(isBuildPhase && canPlaceRoad)) return null; //beige-> buildspot, but only if initial buiild phase or build phase and spot ok
+
 
   // --- CONFIG ---
   // Map server colors to display colors

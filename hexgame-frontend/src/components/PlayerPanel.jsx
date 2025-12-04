@@ -171,6 +171,7 @@ export default function PlayerPanel({ side = "left", players, playerId, gameId, 
     }
     bankTrade(gameId, wood, clay, wheat, wool, stone);
     resetResourceChange();
+    setCanTradeBank(false);
   };
 
   return (

@@ -4,7 +4,7 @@ import HexNode from "./HexNode";
 import HexPath from "./HexPath";
 import BuildMenu from "./BuildMenu";
 
-export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingVillage, isPlacingCity, isPlacingRoad, playerColor }) {
+export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitialVillage, isPlacingInitialRoad, isBuildPhase, player }) {
   const rowConfig = [3, 4, 5, 4, 3];
 
   // --- STATE ---
@@ -132,7 +132,10 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingVillage
                     return (
                         <HexPath 
                             key={`p-${rIndex}-${cIndex}`}
-                            isPlacingRoad={isPlacingRoad}
+                            isPlacingInitialRoad={isPlacingInitialRoad}
+                            isBuildPhase={isBuildPhase}
+                            canPlaceRoad={pathData.canPlaceRoad && player && player.userId && !!pathData.canPlaceRoad.includes(player.userId)}
+                            canPlaceInitialRoad={pathData.canPlaceInitialRoad && player && player.userId && !!pathData.canPlaceInitialRoad.includes(player.userId)}
                             color={pathData.color} // e.g. "beige" or "red"
                             angle={angle}
                             top={topPos}
@@ -159,10 +162,11 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingVillage
                 return (
                 <React.Fragment key={`n-${rIndex}-${cIndex}`}>
                     <HexNode
-                        playerColor={playerColor}
+                        playerColor={player?.color}
                         color={node.color} 
-                        isPlacingVillage={isPlacingVillage}
-                        isPlacingCity={isPlacingCity}
+                        isPlacingInitialVillage={isPlacingInitialVillage}
+                        isBuildPhase={isBuildPhase}
+                        canPlaceVillage={node.canPlaceVillage && player && player.userId && !!node.canPlaceVillage.includes(player.userId)}
                         buildFactor={node.buildFactor}
                         top={topPos}
                         left={leftPos}
