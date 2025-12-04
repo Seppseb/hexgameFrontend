@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import HexTile from "./HexTile";
 import HexNode from "./HexNode";
 import HexPath from "./HexPath";
+import HexPort from "./HexPort";
 import BuildMenu from "./BuildMenu";
 
 export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitialVillage, isPlacingInitialRoad, isBuildPhase, player }) {
@@ -55,6 +56,7 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
     setSelectedObj(null);
   };
 
+  //TODO cancel build on end round
   const cancelBuild = () => {
     setSelectedObj(null);
   };
@@ -63,7 +65,7 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
     <div className="relative inline-block p-8 mt-10 bg-slate-100 rounded-xl">
       
       {/* LAYER 1: HEX TILES */}
-      <div className="relative z-0 flex flex-col items-center">
+      <div className="relative z-20 flex flex-col items-center">
         {rowConfig.map((cols, rowIndex) => (
           <div
             key={rowIndex}
@@ -86,9 +88,64 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
 
       {/* OVERLAYS CONTAINER */}
       <div className="absolute inset-0 pointer-events-none">
+
+        {/* LAYER 0: Ports - Z-INDEX 0 (Below Tiles) */}
+        <div className="absolute z-0">
+            {board && board.paths && board.paths.map((rowPaths, rIndex) => {
+                const isEvenRow = rIndex % 2 === 0; // Diagonals
+                const isFirstHalf = rIndex <= 4;
+                
+                // Calculate Y Center for this row of paths
+                // It sits halfway between Node Row 'r' and 'r+1'
+                const topPosRaw = (rIndex * TUNING.stepY) + TUNING.offsetY + TUNING.pathOffsetY;
+                const topPos = `${topPosRaw}rem`;
+
+                return rowPaths.map((pathData, cIndex) => {
+                    let leftPosRaw = 0;
+                    let angle = 0;
+
+                    if (isEvenRow) {
+                        // --- DIAGONAL ROADS (\ / \ /) ---
+                        // These are twice as dense horizontally as nodes
+                        // We use (Width / 2) as the step
+                        const pathsInRow = rowPaths.length;
+                        const rowWidthOffset = (11 - pathsInRow) * (TUNING.width / 4); // Heuristic centering
+                        
+                        // Alternate Angles: Even index = \ (-60), Odd index = / (60)
+                        angle = cIndex  % 2 === 0 ? -60 : 60;
+                        if (isFirstHalf) angle = -angle;
+                        
+                        // Custom centering logic for diagonals to match the zig-zag nodes
+                        // You might need to tweak the '0.5' multiplier here
+                        leftPosRaw = (cIndex * (TUNING.width / 2)) + rowWidthOffset + TUNING.offsetX + TUNING.evenPathOffsetX; 
+                    } else {
+                        // --- VERTICAL ROADS ( | | | ) ---
+                        // These align directly with the columns
+                        const pathsInRow = rowPaths.length;
+                        // Centering logic similar to nodes
+                        const rowWidthOffset = (6 - pathsInRow) * (TUNING.oddPathWidth) + TUNING.oddPathOffsetX;
+                        
+                        angle = 0;
+                        leftPosRaw = (cIndex * TUNING.width) + rowWidthOffset + TUNING.offsetX;
+                    }
+
+                    const leftPos = `${leftPosRaw}rem`;
+
+                    return (
+                        <HexPort 
+                            key={`p-${rIndex}-${cIndex}`}
+                            port={pathData.port}
+                            angle={angle}
+                            top={topPos}
+                            left={leftPos}
+                        />
+                    );
+                });
+            })}
+        </div>
         
         {/* LAYER 2: PATHS (ROADS) - Z-INDEX 10 (Below Nodes) */}
-        <div className="z-10">
+        <div className="absolute z-20">
             {board && board.paths && board.paths.map((rowPaths, rIndex) => {
                 const isEvenRow = rIndex % 2 === 0; // Diagonals
                 const isFirstHalf = rIndex <= 4;
@@ -148,7 +205,7 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
         </div>
 
         {/* LAYER 3: NODES - Z-INDEX 50 (Top) */}
-        <div className="z-50">
+        <div className="absolute z-30">
             {board && board.nodes && board.nodes.map((rowNodes, rIndex) => {
             const topPos = `${(rIndex * TUNING.stepY + (rIndex % 2 === 0 ? TUNING.zigzagY : -TUNING.zigzagY)) + TUNING.offsetY}rem`;
             const isZigZagRow = rIndex % 2 !== 0;
@@ -180,7 +237,7 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
 
         {/* LAYER 4: MENU */}
         {selectedObj && (
-          <div className="pointer-events-auto z-[60]">
+          <div className="absolute z-40 pointer-events-auto">
             <BuildMenu 
               onConfirm={confirmBuild}
               onCancel={cancelBuild}

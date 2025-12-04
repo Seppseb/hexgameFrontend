@@ -101,7 +101,7 @@ export default function PlayerPanel({ side = "left", players, playerId, gameId, 
     if (!players[playerId].tradeFactor) return;
 
     let balance = 0;
-
+    //TODO fix logic, right now port means getting ressource cheap not giving it as valuavle
     for (const res in pendingChanges) {
       let val = pendingChanges[res];
       if (val > 0) {
