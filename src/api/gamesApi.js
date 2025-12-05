@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_BACKEND_URL;
+
 const API = axios.create({
-  baseURL: "http://localhost:8080/api/games",
+  baseURL:  API_BASE + "/api/games",
   withCredentials: true,
 });
 
