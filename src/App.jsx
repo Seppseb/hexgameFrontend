@@ -34,7 +34,7 @@ function AppContent() {
 
 export default function App() {
   return (
-    <Router basename="/hexgameFrontend">
+    <Router>
       <AppContent />
     </Router>
   );
