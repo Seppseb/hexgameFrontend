@@ -94,6 +94,8 @@ export default function PlayerPanel({ side = "left", players, playerId, gameId, 
     });
   };
 
+  //TODO switch logic: currentplayer right, rest all left, hide other cards, show knight, vicpoints, numcards, numdevs on hand, played devs
+
   useEffect(() => {
     if (!playerId) return;
     if (!players) return;
