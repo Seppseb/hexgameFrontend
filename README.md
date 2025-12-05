@@ -19,4 +19,5 @@ If you are developing a production application, we recommend using TypeScript wi
 npm i
 npm run dev
 
+npm run build
 npm run deploy
