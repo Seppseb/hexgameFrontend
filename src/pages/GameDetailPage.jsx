@@ -1,24 +1,19 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import { getGame, joinGame, startGame } from "../api/gamesApi";
+import { getGame, getUserInfo, joinGame, startGame } from "../api/gamesApi";
 import { useGameWebSocket } from "../hooks/useGameWebSocket";
 import { useNavigate } from "react-router-dom";
 
 export default function GameDetailPage() {
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
-  const [name, setName] = useState(getCookie("username"));
+  const [name, setName] = useState("");
   const [players, setPlayers] = useState("");
   const [playerNumber, setPlayerNumber] = useState(0);
-  const [playerId, setPlayerId] = useState(getCookie("userId"));
+  const [playerId, setPlayerId] = useState("");
   const [isOwner, setisOwner] = useState(false);
 
   const navigate = useNavigate();
-  
-  function getCookie(key) {
-    var b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
-    return b ? b.pop() : "";
-  }
 
   const handleWebSocketMessage = useCallback((event) => {
     if (event.game) {
@@ -34,6 +29,17 @@ export default function GameDetailPage() {
   const fetchGame = async () => {
     const res = await getGame(gameId);
     setGame(res.data);
+  };
+
+  const fetchUserInfo = async () => {
+    const res = await getUserInfo();
+    if (!res || !res.data) return;
+    const data = res.data.split(";");
+    setPlayerId(data[0]);
+    setName(data[1]);
+    console.log(res);
+    console.log(data);
+
   };
 
   useEffect(() => {
@@ -72,6 +78,7 @@ export default function GameDetailPage() {
 
   useEffect(() => {
     fetchGame();
+    fetchUserInfo();
   }, [gameId]);
 
   useEffect(() => {

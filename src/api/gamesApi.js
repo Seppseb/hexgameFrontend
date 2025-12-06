@@ -18,3 +18,4 @@ export const buyDevelopment = (gameId) => API.post(`/${gameId}/buyDevelopment`);
 export const bankTrade = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/bankTrade/${wood}/${clay}/${wheat}/${wool}/${stone}`);
 export const endTurn = (gameId) => API.post(`/${gameId}/endTurn`);
 export const getGame = (gameId) => API.get(`/${gameId}`);
+export const getUserInfo = () => API.get(`/whoAmI`);

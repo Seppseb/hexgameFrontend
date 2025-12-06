@@ -16,6 +16,7 @@ export default function GamesPage() {
     try {
       setLoading(true);
       const res = await listGames();
+      console.log(res)
       setGames(res.data);
     } catch (err) {
       console.error("Failed to load games:", err);

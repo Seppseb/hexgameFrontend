@@ -4,7 +4,7 @@ import { useGameWebSocket } from "../hooks/useGameWebSocket";
 import PlayerPanel from "../components/PlayerPanel";
 import ShopBar from "../components/ShopBar";
 import HexBoard from "../components/HexBoard";
-import { getGame, sendReady, build, buildRoad } from "../api/gamesApi";
+import { getGame, sendReady, build, buildRoad, getUserInfo } from "../api/gamesApi";
 import DiceRollPopup from "../components/DiceRollPopup"; 
 import { AnimatePresence } from "framer-motion";
 
@@ -17,7 +17,7 @@ export default function GameBoardPage() {
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
   const [log, setLog] = useState("");
-  const [playerId, setPlayerId] = useState(getCookie("userId"));
+  const [playerId, setPlayerId] = useState("");
   const [player, setPlayer] = useState(null);
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
   
@@ -81,18 +81,25 @@ export default function GameBoardPage() {
     }
   }, [isConnected, gameId]);
 
-  function getCookie(key) {
-    var b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
-    return b ? b.pop() : "";
-  }
 
   useEffect(() => {
     fetchGame();
+    fetchUserInfo();
   }, [gameId]);
   
   const fetchGame = async () => {
     const res = await getGame(gameId);
     setGame(res.data);
+  };
+
+  const fetchUserInfo = async () => {
+    const res = await getUserInfo();
+    if (!res || !res.data) return;
+    const data = res.data.split(";");
+    setPlayerId(data[0]);
+    console.log(res);
+    console.log(data);
+
   };
   
     
