@@ -84,6 +84,7 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeVa
 export default function PlayerPanel({ side = "left", players, playerId, gameId, isPlayerTurn }) {
   const [pendingChanges, setPendingChanges] = useState({});
   const [canTradeBank, setCanTradeBank] = useState(false);
+  const [canTradeMultipleRessourcesAtOnce, setCanTradeMultipleRessourcesAtOnce] = useState(false);
 
   const handleResourceChange = (resource, delta) => {
 
@@ -102,17 +103,35 @@ export default function PlayerPanel({ side = "left", players, playerId, gameId, 
     if (!players[playerId]) return;
     if (!players[playerId].tradeFactor) return;
 
-    let balance = 0;
-    //TODO fix logic, right now port means getting ressource cheap not giving it as valuavle
+
+    let takenRessources = 0;
+    let canTakeRessources = 0;
+    let canTakeRessourcesFromOverFlow = 0;
     for (const res in pendingChanges) {
-      let val = pendingChanges[res];
-      if (val > 0) {
-        balance+= val * players[playerId].tradeFactor[res];
-      } else {
-        balance+= val;
+      let playerGetsAmount = pendingChanges[res];
+      if (playerGetsAmount > 0) {
+        takenRessources += playerGetsAmount;
+      } else if (playerGetsAmount < 0) {
+        let playerGivesAmount = -playerGetsAmount;
+        let overflow = playerGivesAmount % players[playerId].tradeFactor[res];
+        playerGivesAmount-= overflow;
+        canTakeRessourcesFromOverFlow += overflow / players[playerId].tradeFactor[res];
+        canTakeRessources += playerGivesAmount / players[playerId].tradeFactor[res];
       }
     }
-    setCanTradeBank(balance === 0);
+    console.log();
+    console.log(takenRessources);
+    console.log(canTakeRessources);
+    console.log(canTakeRessourcesFromOverFlow);
+    if (canTradeMultipleRessourcesAtOnce) {
+      canTakeRessources += canTakeRessourcesFromOverFlow;
+    } else {
+      if (canTakeRessourcesFromOverFlow != 0) {
+        setCanTradeBank(false);
+        return;
+      }
+    }
+    setCanTradeBank(takenRessources == canTakeRessources);
   }, [pendingChanges]);
 
   const resetResourceChange = () => {
