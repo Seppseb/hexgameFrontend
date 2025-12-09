@@ -12,6 +12,9 @@ export default function GamesPage() {
 
   const navigate = useNavigate();
 
+  //TODO check gamestate and sorting stuff of games
+  //TODO update avaliable games via socket
+
   const fetchGames = async () => {
     try {
       setLoading(true);

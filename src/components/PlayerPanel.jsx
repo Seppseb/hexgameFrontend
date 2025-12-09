@@ -95,7 +95,7 @@ export default function PlayerPanel({ side = "left", players, playerId, gameId, 
     });
   };
 
-  //TODO switch logic: currentplayer right, rest all left, hide other cards, show knight, vicpoints, numcards, numdevs on hand, played devs
+  //TODO switch logic: hide other cards, show knight, vicpoints, numcards, numdevs on hand, played devs
 
   useEffect(() => {
     if (!playerId) return;
@@ -119,10 +119,6 @@ export default function PlayerPanel({ side = "left", players, playerId, gameId, 
         canTakeRessources += playerGivesAmount / players[playerId].tradeFactor[res];
       }
     }
-    console.log();
-    console.log(takenRessources);
-    console.log(canTakeRessources);
-    console.log(canTakeRessourcesFromOverFlow);
     if (canTradeMultipleRessourcesAtOnce) {
       canTakeRessources += canTakeRessourcesFromOverFlow;
     } else {
@@ -146,14 +142,28 @@ export default function PlayerPanel({ side = "left", players, playerId, gameId, 
 
 
   let playersOfThisSide = [];
-  for (const id in players) {
-    let player = players[id];
+  if (playerId && players[playerId]) {
     if (side === "left") {
-      if (player.playerIndex === 0) playersOfThisSide[0] = player;
-      if (player.playerIndex === 2) playersOfThisSide[1] = player;
+      playersOfThisSide[0] = players[playerId];
     } else {
-      if (player.playerIndex === 1) playersOfThisSide[0] = player;
-      if (player.playerIndex === 3) playersOfThisSide[1] = player;
+      for (const id in players) {
+        let player = players[id];
+        if (id == playerId) continue;
+        let index = player.playerIndex;
+        if (index > players[playerId].playerIndex) index--;
+        playersOfThisSide[index] = player;
+      }
+    }
+  } else {
+    for (const id in players) {
+      let player = players[id];
+      if (side === "left") {
+        if (player.playerIndex === 0) playersOfThisSide[0] = player;
+        if (player.playerIndex === 2) playersOfThisSide[1] = player;
+      } else {
+        if (player.playerIndex === 1) playersOfThisSide[0] = player;
+        if (player.playerIndex === 3) playersOfThisSide[1] = player;
+      }
     }
   }
 
