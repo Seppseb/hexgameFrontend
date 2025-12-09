@@ -12,6 +12,7 @@ export default function GameDetailPage() {
   const [playerNumber, setPlayerNumber] = useState(0);
   const [playerId, setPlayerId] = useState("");
   const [isOwner, setisOwner] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   const navigate = useNavigate();
 
@@ -20,7 +21,7 @@ export default function GameDetailPage() {
       setGame(event.game);
     }
     if (event.type === 'STARTED_GAME') {
-      handleGameStart();
+      continueToGamePage();
     }
   }, []);
 
@@ -44,6 +45,9 @@ export default function GameDetailPage() {
 
   useEffect(() => {
     if (game) parsePlayers();
+    if (game) {
+      setHasStarted(game.state && game.state != "WAITING_FOR_PLAYERS");
+    }
   }, [game]);
 
   function parsePlayers() {
@@ -59,6 +63,10 @@ export default function GameDetailPage() {
     if (res && res.data && res.data.userId)
       setPlayerId(res.data.userId);
   };
+  
+  const handleContinue = async () => {
+    continueToGamePage();
+  };
 
   const handleStartGame = async () => {
     if (isOwner) {
@@ -66,7 +74,7 @@ export default function GameDetailPage() {
     }
   };
 
-  const handleGameStart = async () => {
+  const continueToGamePage = async () => {
     navigate(`/games/${gameId}/board`);
   };
 
@@ -94,40 +102,47 @@ export default function GameDetailPage() {
       <p>
         Players {playerNumber}/4: {players}
       </p>
+      {!hasStarted && (
+        <div style={{ marginTop: "1rem" }}>
+        <input
+          placeholder="Your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <button onClick={handleJoin}>Join Game</button>
 
+        {isOwner && (
+          <button
+            onClick={handleStartGame}
+            style={{
+              marginLeft: "0.5rem",
+              backgroundColor: "green",
+              color: "white",
+            }}
+          >
+            Start Game
+          </button>
+        )}
+        {!isOwner && game && game.players && game.ownerId && game.players[game.ownerId] && game.players[game.ownerId].name && (
+          <button
+            style={{
+              marginLeft: "0.5rem",
+              backgroundColor: "green",
+              color: "white",
+            }}
+          >
+            Wait for {game.players[game.ownerId].name} to start the game
+          </button>
+        )}
+        </div>
+      )}
+
+    {hasStarted && (
       <div style={{ marginTop: "1rem" }}>
-      <input
-        placeholder="Your name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-      <button onClick={handleJoin}>Join Game</button>
-
-      {isOwner && (
-        <button
-          onClick={handleStartGame}
-          style={{
-            marginLeft: "0.5rem",
-            backgroundColor: "green",
-            color: "white",
-          }}
-        >
-          Start Game
-        </button>
-      )}
-      {!isOwner && game && game.players && game.ownerId && game.players[game.ownerId] && game.players[game.ownerId].name && (
-        <button
-          style={{
-            marginLeft: "0.5rem",
-            backgroundColor: "green",
-            color: "white",
-          }}
-        >
-          Wait for {game.players[game.ownerId].name} to start the game
-        </button>
-      )}
-    </div>
+      <button onClick={handleContinue}>Continue to game</button>
+      </div>
+    )}
     </div>
   );
 }
