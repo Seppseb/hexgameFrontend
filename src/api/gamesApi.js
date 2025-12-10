@@ -17,6 +17,11 @@ export const buildRoad = (gameId, row, col) => API.post(`/${gameId}/buildRoad/${
 export const buyDevelopment = (gameId) => API.post(`/${gameId}/buyDevelopment`);
 export const playDevelopment = (gameId, type) => API.post(`/${gameId}/playDevelopment/${type}`);
 export const bankTrade = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/bankTrade/${wood}/${clay}/${wheat}/${wool}/${stone}`);
+export const askPlayerTrade = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/askPlayerTrade/${wood}/${clay}/${wheat}/${wool}/${stone}`);
+export const acceptPlayerTrade = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/acceptPlayerTrade/${wood}/${clay}/${wheat}/${wool}/${stone}`);
+export const declinePlayerTrade = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/declinePlayerTrade/${wood}/${clay}/${wheat}/${wool}/${stone}`);
+export const finishPlayerTrade = (gameId, partnerId) => API.post(`/${gameId}/finishPlayerTrade/${partnerId}`);
+export const cancelPlayerTrade = (gameId) => API.post(`/${gameId}/cancelPlayerTrade`);
 export const endTurn = (gameId) => API.post(`/${gameId}/endTurn`);
 export const getGame = (gameId) => API.get(`/${gameId}`);
 export const getUserInfo = () => API.get(`/whoAmI`);

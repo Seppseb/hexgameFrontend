@@ -113,26 +113,20 @@ export default function GameBoardPage() {
     if (!playerId || playerId !== game?.currentPlayer?.userId) {
       setIsPlacingInitialVillage(false);
       setIsPlacingInitialRoad(false);
-      console.log("case1");
     } else {
       if (game.state == 'PLACEMENT') {
         if (game.initialIsPlacingRoad) {
           setIsPlacingInitialVillage(false);
           setIsPlacingInitialRoad(true);
-          console.log("case2");
         } else {
           setIsPlacingInitialVillage(true);
           setIsPlacingInitialRoad(false);
-          console.log("case3");
         }
       } else {
         setIsPlacingInitialVillage(false);
         setIsPlacingInitialRoad(false);
-        console.log("case4");
       }
     }
-    console.log("village: " + isPlacingInitialVillage)
-    console.log("road: " + isPlacingInitialRoad)
   }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad]);
 
   // center on load
@@ -187,7 +181,7 @@ export default function GameBoardPage() {
       {/* ... existing layout ... */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/5 bg-emerald-800 border-r border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="left" players={game && game.players ? game.players : null } playerId={playerId} gameId={gameId} isPlayerTurn={isPlayerTurn}/>
+          <PlayerPanel side="left" players={game && game.players ? game.players : null } playerId={playerId} gameId={gameId} isPlayerTurn={isPlayerTurn} currentTradeOffer={game?.currentTradeOffer} />
         </div>
         <div
           className="flex-1 bg-slate-900 relative overflow-hidden"

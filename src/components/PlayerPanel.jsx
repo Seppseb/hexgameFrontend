@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { bankTrade, playDevelopment } from "../api/gamesApi";
+import { acceptPlayerTrade, askPlayerTrade, bankTrade, cancelPlayerTrade, declinePlayerTrade, finishPlayerTrade, playDevelopment } from "../api/gamesApi";
 
 function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeValue, onChange }) {
-  // Logic: Down arrow should be hidden if giving away more than you have,
-  // i.e., the current resource amount plus the change must be >= 1.
   const downArrowVisible = (currentValue + changeValue) >= 1;
-
-  // Up arrow always visible
   const upArrowVisible = true;
 
   return (
     <div className="flex items-center justify-center text-sm mb-1">
-
-      {/* Label: Fixed width + text-right ensures the colon : always lines up */}
       <span className="capitalize w-14 text-right mr-2" >{label}:&nbsp;</span>
 
       <div className="flex items-center gap-1">
@@ -22,15 +16,12 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeVa
         {label === "wool" && <span >&nbsp;&nbsp;&nbsp;&nbsp;</span>}
         {label === "stone" && <span >&nbsp;&nbsp;&nbsp;</span>}
 
-        {/* Current Amount */}
         <span className="font-mono w-4 text-center">{currentValue}&nbsp;</span>
       </div>
 
-      {/* COLUMN 3: Interaction Area (Fixed width w-24 to RESERVE SPACE) */}
       <div className="w-24 flex items-center justify-center">
         {isPlayer && isPlayerTurn ? (
           <>
-            {/* Down Arrow */}
             <button
               onClick={() => onChange(-1)}
               className={`
@@ -43,14 +34,12 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeVa
               </svg>
             </button>
 
-            {/* Change Display (Middle Text) */}
             <div className={`w-6 text-center font-bold text-xs ${changeValue !== 0 ? 'visible' : 'invisible'}`}>
               <span className={changeValue > 0 ? "text-green-300" : "text-red-300"}>
                 {changeValue > 0 ? "+" : ""}{changeValue}
               </span>
             </div>
 
-            {/* Up Arrow */}
             <button
               onClick={() => onChange(1)}
               className={`
@@ -64,8 +53,6 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeVa
             </button>
           </>
         ) : (
-          // When isPlayer is false, this container is empty but holds the w-24 space,
-          // ensuring the whole row's width remains constant and aligned.
           <div className="h-full"></div>
         )}
       </div>
@@ -79,9 +66,12 @@ export default function PlayerPanel({
   playerId,
   gameId,
   isPlayerTurn,
+  currentTradeOffer,
 }) {
   const [pendingChanges, setPendingChanges] = useState({});
   const [canTradeBank, setCanTradeBank] = useState(false);
+  const [canTradePlayer, setCanTradePlayer] = useState(false);
+  const [canAcceptTrade, setCanAcceptTrade] = useState(false);
   const [canTradeMultipleRessourcesAtOnce, setCanTradeMultipleRessourcesAtOnce] = useState(false);
 
   const handleResourceChange = (resource, delta) => {
@@ -92,12 +82,10 @@ export default function PlayerPanel({
     });
   };
 
-  // fix: reset resource changes safely
   const resetResourceChange = () => {
     setPendingChanges({});
   };
 
-  // TODO switch logic: hide other cards, show knight, vicpoints, numcards, numdevs on hand, played devs
   useEffect(() => {
     if (!playerId) return;
     if (!players) return;
@@ -107,11 +95,14 @@ export default function PlayerPanel({
     let takenRessources = 0;
     let canTakeRessources = 0;
     let canTakeRessourcesFromOverFlow = 0;
+    let change = false;
     for (const res in pendingChanges) {
       let playerGetsAmount = pendingChanges[res];
       if (playerGetsAmount > 0) {
         takenRessources += playerGetsAmount;
+        change = true;
       } else if (playerGetsAmount < 0) {
+        change = true;
         let playerGivesAmount = -playerGetsAmount;
         let overflow = playerGivesAmount % players[playerId].tradeFactor[res];
         playerGivesAmount -= overflow;
@@ -119,6 +110,7 @@ export default function PlayerPanel({
         canTakeRessources += playerGivesAmount / players[playerId].tradeFactor[res];
       }
     }
+    setCanTradePlayer(change);
     if (takenRessources == 0) {
       setCanTradeBank(false);
       return;
@@ -174,7 +166,8 @@ export default function PlayerPanel({
 
   const resources = ["wood", "clay", "wheat", "wool", "stone"];
 
-  // emoji map for development types
+  const resEmojis = {"wood": "🌲", "desert": "🏜️", "clay": "🧱", "wheat": "🌾", "stone": "⛰️", "wool": "🐑"};
+
   const devEmojis = {
     knight: "🛡️",
     development: "📜",
@@ -191,6 +184,7 @@ export default function PlayerPanel({
 
     if (!gameId) return;
 
+    if (!isPlayerTurn) return;
     if (!canTradeBank) return;
 
     let wood = 0;
@@ -211,7 +205,29 @@ export default function PlayerPanel({
     setCanTradeBank(false);
   };
 
-  // helper to render a dev as emoji: support both strings and objects
+  const onAskPlayerTrade = () => {
+    if (!playerId) return;
+
+    if (!gameId) return;
+
+    if (!isPlayerTurn) return;
+
+    let wood = 0;
+    let clay = 0;
+    let wheat = 0;
+    let wool = 0;
+    let stone = 0;
+    for (const res in pendingChanges) {
+      let val = pendingChanges[res];
+      if (res === "wood") wood = val;
+      if (res === "clay") clay = val;
+      if (res === "wheat") wheat = val;
+      if (res === "wool") wool = val;
+      if (res === "stone") stone = val;
+    }
+    askPlayerTrade(gameId, wood, clay, wheat, wool, stone);
+  };
+
   const devTypeFromItem = (item) => {
     if (!item) return null;
     if (typeof item === "string") return item;
@@ -231,6 +247,61 @@ export default function PlayerPanel({
     if (!isPlayerTurn) return;
     playDevelopment(gameId, devTypeFromItem(development));
   };
+
+  // helper: produce a simple "wood x, clay y" string for either positive or negative values
+  const listResources = (offer, predicate /* fn(value) => boolean */) => {
+    if (!offer) return [];
+    return resources
+      .map((r) => ({ key: r, val: offer[r] || 0 }))
+      .filter(({ val }) => predicate(val))
+      .map(({ key, val }) => `${resEmojis[key]} ${Math.abs(val)}`);
+  };
+
+  // Called when the viewer accepts/denies the current offer
+  const handleRespondToTrade = (accept) => {
+    if (!currentTradeOffer) return;
+    if (!gameId) return;
+    const accepterId = playerId;
+    if (!accepterId) return;
+    if (accept) {
+      acceptPlayerTrade(gameId, currentTradeOffer.wood, currentTradeOffer.clay, currentTradeOffer.wheat, currentTradeOffer.wool, currentTradeOffer.stone);
+    } else {
+      declinePlayerTrade(gameId, currentTradeOffer.wood, currentTradeOffer.clay, currentTradeOffer.wheat, currentTradeOffer.wool, currentTradeOffer.stone);
+    }
+  };
+
+  // Called when the offerer finalizes the trade (only shown to offerer when isPlayerTurn)
+  const handleFinalizeTrade = (partnerId) => {
+    if (!currentTradeOffer) return;
+    if (!gameId) return;
+    if (!partnerId) return;
+    finishPlayerTrade(gameId, partnerId)
+    resetResourceChange();
+  };
+
+  const handleCancelTrade = () => {
+    if (!currentTradeOffer) return;
+    if (!gameId) return;
+    cancelPlayerTrade(gameId);
+  };
+
+  useEffect(() => {
+    setCanAcceptTrade(false);
+    if (!currentTradeOffer) return;
+    if (isPlayerTurn) return;
+    if (!playerId) return;
+    if (!players) return;
+    if (!players[playerId]) return;
+    const p = players[playerId];
+    if (!p.resBalance) return;
+    if (currentTradeOffer.wood === null || p.resBalance["wood"] === null || currentTradeOffer.wood > p.resBalance["wood"]) return;
+    if (currentTradeOffer.clay === null || p.resBalance["clay"] === null || currentTradeOffer.clay > p.resBalance["clay"]) return;
+    if (currentTradeOffer.wheat === null || p.resBalance["wheat"] === null || currentTradeOffer.wheat > p.resBalance["wheat"]) return;
+    if (currentTradeOffer.wool === null || p.resBalance["wool"] === null || currentTradeOffer.wool > p.resBalance["wool"]) return;
+    if (currentTradeOffer.stone === null || p.resBalance["stone"] === null || currentTradeOffer.stone > p.resBalance["stone"]) return;
+
+    setCanAcceptTrade(true);
+  }, [currentTradeOffer]);
 
   return (
     <div className="h-full flex flex-col justify-center items-stretch">
@@ -276,7 +347,6 @@ export default function PlayerPanel({
                 })}
               </div>
 
-              {/* Used developments: emojis in a row under the resource amounts */}
               <div className="mt-2 flex justify-center items-center gap-2 flex-wrap">
                 {(player.usedDevelopments && player.usedDevelopments.length > 0) && (
                   player.usedDevelopments.map((dev, idx) => (
@@ -287,7 +357,6 @@ export default function PlayerPanel({
                 )}
               </div>
 
-              {/* For the current player: show unused developments (clickable) */}
               {player.userId === playerId && player.developments && player.developments.length > 0 && (
                 <div className="mt-3">
                   <div className="text-xs mb-1">Unused developments:</div>
@@ -320,6 +389,142 @@ export default function PlayerPanel({
                   </button>
                 </div>
               }
+              {
+                player.userId === playerId && canTradePlayer && isPlayerTurn && <div className="mt-3">
+                  <button onClick={onAskPlayerTrade} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
+                    Offer Trade for other Players
+                  </button>
+                </div>
+              }
+
+              {/* ---- NEW: Render currentTradeOffer under the current player's box (only for the current player) ---- */}
+              {player.userId === playerId && currentTradeOffer && (
+                <div className="mt-4 bg-emerald-800/30 p-2 rounded-md text-left">
+                  <div className="text-xs mb-2 font-semibold">Active Trade Offer</div>
+
+                  {/* Determine lists depending on viewer's turn */}
+                  {isPlayerTurn ? (
+                    <>
+                      {/* Viewer is offerer (their turn): show wants and gives from offerer's POV */}
+                      <div className="text-sm">
+                        <div className="text-xs">you want:</div>
+                        <div className="text-sm mb-1">
+                          {listResources(currentTradeOffer, (v) => v > 0).length > 0
+                            ? listResources(currentTradeOffer, (v) => v > 0).join(", ")
+                            : <span className="text-gray-300">none</span>}
+                        </div>
+
+                        <div className="text-xs">you give:</div>
+                        <div className="text-sm mb-2">
+                          {listResources(currentTradeOffer, (v) => v < 0).length > 0
+                            ? listResources(currentTradeOffer, (v) => v < 0).join(", ")
+                            : <span className="text-gray-300">none</span>}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Viewer is not the current turn player: show you get / you give */}
+                      <div className="text-sm">
+                        <div className="text-xs">you get:</div>
+                        <div className="text-sm mb-1">
+                          {listResources(currentTradeOffer, (v) => v < 0).length > 0
+                            ? listResources(currentTradeOffer, (v) => v < 0).join(", ")
+                            : <span className="text-gray-300">none</span>}
+                        </div>
+
+                        <div className="text-xs">you give:</div>
+                        <div className="text-sm mb-2">
+                          {listResources(currentTradeOffer, (v) => v > 0).length > 0
+                            ? listResources(currentTradeOffer, (v) => v > 0).join(", ")
+                            : <span className="text-gray-300">none</span>}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  { !isPlayerTurn && (
+                    <div className="flex gap-1">
+                      { canAcceptTrade && (
+                        <button
+                        onClick={() => handleRespondToTrade(true)}
+                        className="px-2 py-1 text-xs rounded bg-green-700 hover:bg-green-600"
+                        >
+                        Accept
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleRespondToTrade(false)}
+                        className="px-2 py-1 text-xs rounded bg-red-700 hover:bg-red-600"
+                      >
+                        Deny
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Accepter status: show each accepter and their current bool/null */}
+                  <div className="mt-2">
+                    <div className="flex flex-col gap-1">
+                      {currentTradeOffer.acceptersId && players && (
+                        Object.keys(players).map((accepterId) => accepterId !== currentTradeOffer.offererId && (
+                          <div key={`acc-${accepterId}`} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {players[accepterId] && (
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "12px",
+                                    height: "12px",
+                                    backgroundColor: palette[players[accepterId].color],
+                                    borderRadius: "50%"
+                                  }}
+                                />
+                              )}
+                              <span className="text-xs">
+                                {players && players[accepterId] ? players[accepterId].name : accepterId}
+                              </span>
+                              {currentTradeOffer.acceptersId[accepterId] === true && <span className="text-green-300">✅</span>}
+                              {currentTradeOffer.acceptersId[accepterId] === false && <span className="text-red-300">❌</span>}
+                              {(currentTradeOffer.acceptersId[accepterId] === null || currentTradeOffer.acceptersId[accepterId] === undefined) && <span className="text-gray-400">🔘</span>}
+                            </div>
+
+                            {/* If the current viewer is the player whose panel this is, allow Accept/Deny buttons */}
+                            { isPlayerTurn && currentTradeOffer.acceptersId[accepterId] === true && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => {
+                                    handleFinalizeTrade(accepterId);
+                                  }}
+                                  className="px-3 py-1 rounded bg-yellow-500 text-black font-semibold hover:bg-yellow-400"
+                                >
+                                  Finish Trade
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* If the current viewer is the offerer and it's their turn show Finalize */}
+                  {currentTradeOffer.offererId === player.userId && isPlayerTurn && (
+                    <div className="mt-3 flex gap-2 justify-center">
+                      
+
+                      <button
+                        onClick={() => {
+                          handleCancelTrade();
+                        }}
+                        className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-500"
+                      >
+                        Cancel Offer
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           ) : null
         ))}
