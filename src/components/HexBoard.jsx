@@ -45,11 +45,8 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
     if (!selectedObj) return;
 
     if (selectedObj.type === "node") {
-      console.log(`Building Village/City at ${selectedObj.r}, ${selectedObj.c}`);
       onBuild && onBuild(selectedObj.r, selectedObj.c);
     } else if (selectedObj.type === "road") {
-      console.log(`Building Road at ${selectedObj.r}, ${selectedObj.c}`);
-      // Assuming you have a separate prop for road building, or use the same one with a type arg
       onBuildRoad && onBuildRoad(selectedObj.r, selectedObj.c);
     }
 

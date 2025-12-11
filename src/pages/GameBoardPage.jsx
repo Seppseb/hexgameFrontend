@@ -16,6 +16,7 @@ export default function GameBoardPage() {
 
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
+  const [players, setPlayers] = useState(null);
   const [log, setLog] = useState("");
   const [playerId, setPlayerId] = useState("");
   const [player, setPlayer] = useState(null);
@@ -45,6 +46,9 @@ export default function GameBoardPage() {
   const handleWebSocketMessage = useCallback((event) => {
     if (event.game) {
       setGame(event.game);
+      if (event.game.players) {
+        setPlayers(event.game.players);
+      }
     }
     // Check if it's a 'roll dice' message for the current player
     if (event.type === 'INITIAL_ROLL' && event.playerId === playerId) {
@@ -90,6 +94,9 @@ export default function GameBoardPage() {
   const fetchGame = async () => {
     const res = await getGame(gameId);
     setGame(res.data);
+    if (res.data.players) {
+      setPlayers(res.data.players);
+    }
   };
 
   const fetchUserInfo = async () => {
@@ -181,7 +188,7 @@ export default function GameBoardPage() {
       {/* ... existing layout ... */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/5 bg-emerald-800 border-r border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="left" players={game && game.players ? game.players : null } playerId={playerId} gameId={gameId} isPlayerTurn={isPlayerTurn} currentTradeOffer={game?.currentTradeOffer} />
+          <PlayerPanel side="left" players={players} playerId={playerId} gameId={gameId} isPlayerTurn={isPlayerTurn} currentTradeOffer={game?.currentTradeOffer} />
         </div>
         <div
           className="flex-1 bg-slate-900 relative overflow-hidden"
@@ -215,7 +222,7 @@ export default function GameBoardPage() {
           <div className="pointer-events-none absolute inset-0 border-4 border-emerald-950"></div>
         </div>
         <div className="w-1/5 bg-emerald-800 border-l border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="right" players={game && game.players ? game.players : null} playerId={player?.userId} gameId={gameId} isPlayerTurn={isPlayerTurn} />
+          <PlayerPanel side="right" players={players} playerId={player?.userId} gameId={gameId} isPlayerTurn={isPlayerTurn} />
         </div>
       </div>
       <div className="h-32 bg-emerald-950 border-t border-emerald-800">

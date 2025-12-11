@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { acceptPlayerTrade, askPlayerTrade, bankTrade, cancelPlayerTrade, declinePlayerTrade, finishPlayerTrade, playDevelopment } from "../api/gamesApi";
+import { acceptPlayerTrade, askPlayerTrade, bankTrade, cancelPlayerTrade, declinePlayerTrade, finishPlayerTrade, playDevelopment, settleDebt } from "../api/gamesApi";
 
 function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeValue, onChange }) {
   const downArrowVisible = (currentValue + changeValue) >= 1;
@@ -73,6 +73,8 @@ export default function PlayerPanel({
   const [canTradePlayer, setCanTradePlayer] = useState(false);
   const [canAcceptTrade, setCanAcceptTrade] = useState(false);
   const [canTradeMultipleRessourcesAtOnce, setCanTradeMultipleRessourcesAtOnce] = useState(false);
+  const [playerDebt, setPlayerDebt] = useState(0);
+  const [canSettleDebt, setCanSettleDebt] = useState(false); //TODO set
 
   const handleResourceChange = (resource, delta) => {
     setPendingChanges((prev) => {
@@ -92,24 +94,47 @@ export default function PlayerPanel({
     if (!players[playerId]) return;
     if (!players[playerId].tradeFactor) return;
 
+    if (players[playerId].resDebt !== null) {
+      setPlayerDebt(players[playerId].resDebt);
+    }
+
     let takenRessources = 0;
+    let givenRessources = 0;
     let canTakeRessources = 0;
     let canTakeRessourcesFromOverFlow = 0;
     let change = false;
+
     for (const res in pendingChanges) {
       let playerGetsAmount = pendingChanges[res];
       if (playerGetsAmount > 0) {
+
         takenRessources += playerGetsAmount;
         change = true;
+        
       } else if (playerGetsAmount < 0) {
         change = true;
         let playerGivesAmount = -playerGetsAmount;
+        givenRessources += playerGivesAmount;
+
         let overflow = playerGivesAmount % players[playerId].tradeFactor[res];
         playerGivesAmount -= overflow;
         canTakeRessourcesFromOverFlow += overflow / players[playerId].tradeFactor[res];
         canTakeRessources += playerGivesAmount / players[playerId].tradeFactor[res];
+
       }
     }
+
+    if (playerDebt != 0) {
+      setCanTradeBank(false);
+      setCanTradePlayer(false);
+      if (playerDebt < 0) {
+        setCanSettleDebt(-playerDebt === takenRessources && givenRessources === 0)
+      } else {
+        setCanSettleDebt(playerDebt === givenRessources && takenRessources === 0)
+      }
+      return;
+    }
+
     setCanTradePlayer(change);
     if (takenRessources == 0) {
       setCanTradeBank(false);
@@ -124,6 +149,8 @@ export default function PlayerPanel({
       }
     }
     setCanTradeBank(takenRessources === canTakeRessources);
+
+    
   }, [pendingChanges, players, playerId, canTradeMultipleRessourcesAtOnce]);
 
   useEffect(() => {
@@ -203,6 +230,7 @@ export default function PlayerPanel({
     bankTrade(gameId, wood, clay, wheat, wool, stone);
     resetResourceChange();
     setCanTradeBank(false);
+    setCanSettleDebt(false);
   };
 
   const onAskPlayerTrade = () => {
@@ -226,6 +254,35 @@ export default function PlayerPanel({
       if (res === "stone") stone = val;
     }
     askPlayerTrade(gameId, wood, clay, wheat, wool, stone);
+  };
+
+  //TODO player also can have debt if not player turn-> change layout
+  const onSettleDebt = () => {
+    if (!playerId) return;
+    if (!players) return;
+    if (!players[playerId]) return;
+    if (!gameId) return;
+
+    if (!canSettleDebt) return;
+
+    let wood = 0;
+    let clay = 0;
+    let wheat = 0;
+    let wool = 0;
+    let stone = 0;
+    for (const res in pendingChanges) {
+      let val = pendingChanges[res];
+      if (res === "wood") wood = val;
+      if (res === "clay") clay = val;
+      if (res === "wheat") wheat = val;
+      if (res === "wool") wool = val;
+      if (res === "stone") stone = val;
+    }
+    //TODO implement backend
+    settleDebt(gameId, wood, clay, wheat, wool, stone);
+    resetResourceChange();
+    setCanSettleDebt(false);
+    setCanTradeBank(false);
   };
 
   const devTypeFromItem = (item) => {
@@ -328,6 +385,23 @@ export default function PlayerPanel({
                 <span className="text-xs tracking-wide">{(player.victoryPoints ?? 0)} VPs</span>
               </p>
 
+              {player.userId === playerId && playerDebt != 0 && (
+                <>
+                {(
+                  playerDebt <= 0 ? (
+                    <>
+                      <span className="text-xs tracking-wide">Choose {-playerDebt} Cards</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xs tracking-wide">Give {playerDebt} Cards</span>
+                    </>
+                  )
+                )}
+                </>
+
+              )}
+
               <div className="flex flex-col">
                 {resources.map((res) => {
                   const changeKey = `${res}`;
@@ -396,6 +470,27 @@ export default function PlayerPanel({
                   </button>
                 </div>
               }
+
+              {player.userId === playerId && playerDebt != 0 && canSettleDebt && (
+                <>
+                {(
+                  playerDebt <= 0 ? (
+                    <div className="mt-3">
+                    <button onClick={onSettleDebt} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
+                      Take Cards from Bank
+                    </button>
+                  </div>
+                  ) : (
+                    <div className="mt-3">
+                    <button onClick={onSettleDebt} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
+                      Give Cards to Bank
+                    </button>
+                  </div>
+                  )
+                )}
+                </>
+
+              )}
 
               {/* ---- NEW: Render currentTradeOffer under the current player's box (only for the current player) ---- */}
               {player.userId === playerId && currentTradeOffer && (

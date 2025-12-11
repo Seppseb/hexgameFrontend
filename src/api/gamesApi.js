@@ -22,6 +22,7 @@ export const acceptPlayerTrade = (gameId, wood, clay, wheat, wool, stone) => API
 export const declinePlayerTrade = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/declinePlayerTrade/${wood}/${clay}/${wheat}/${wool}/${stone}`);
 export const finishPlayerTrade = (gameId, partnerId) => API.post(`/${gameId}/finishPlayerTrade/${partnerId}`);
 export const cancelPlayerTrade = (gameId) => API.post(`/${gameId}/cancelPlayerTrade`);
+export const settleDebt = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/settleDebt/${wood}/${clay}/${wheat}/${wool}/${stone}`);
 export const endTurn = (gameId) => API.post(`/${gameId}/endTurn`);
 export const getGame = (gameId) => API.get(`/${gameId}`);
 export const getUserInfo = () => API.get(`/whoAmI`);
