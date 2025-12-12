@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { acceptPlayerTrade, askPlayerTrade, bankTrade, cancelPlayerTrade, declinePlayerTrade, finishPlayerTrade, playDevelopment, settleDebt } from "../api/gamesApi";
+import DevelopmentMenu from "./DevelopmentMenu";
+
 
 function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeValue, onChange }) {
   const downArrowVisible = (currentValue + changeValue) >= 1;
@@ -74,7 +76,10 @@ export default function PlayerPanel({
   const [canAcceptTrade, setCanAcceptTrade] = useState(false);
   const [canTradeMultipleRessourcesAtOnce, setCanTradeMultipleRessourcesAtOnce] = useState(false);
   const [playerDebt, setPlayerDebt] = useState(0);
-  const [canSettleDebt, setCanSettleDebt] = useState(false); //TODO set
+  const [canSettleDebt, setCanSettleDebt] = useState(false);
+
+  const [devMenu, setDevMenu] = useState({ open: false, type: null, pos: {x:0,y:0}, dev: null });
+
 
   const handleResourceChange = (resource, delta) => {
     setPendingChanges((prev) => {
@@ -300,9 +305,21 @@ export default function PlayerPanel({
     return devEmojis[type] || "❓";
   };
 
-  const handleUseDevelopment = (playerUserId, development) => {
+  const handleClickDevelopment = (playerUserId, development, e) => {
     if (!isPlayerTurn) return;
-    playDevelopment(gameId, devTypeFromItem(development));
+   const rect = e.target.getBoundingClientRect();
+   setDevMenu({
+     open: true,
+     type: devTypeFromItem(development),
+     dev: development,
+     pos: { x: rect.left + rect.width/2, y: rect.top }
+   });
+  };
+
+  const onplayDevelopment = (gameId, type, resType) => {
+    if (!isPlayerTurn) return;
+    if (!resType) resType = "null";
+    playDevelopment(gameId, type, resType);
   };
 
   // helper: produce a simple "wood x, clay y" string for either positive or negative values
@@ -439,14 +456,27 @@ export default function PlayerPanel({
                       player.developments.map((dev, idx) => {
                         const type = devTypeFromItem(dev);
                         return isPlayerTurn ? (
+                          <React.Fragment key={`dev-${idx}`}>
                           <button
                             key={`dev-${idx}`}
-                            onClick={() => handleUseDevelopment(player.userId, dev)}
+                            onClick={(e) => handleClickDevelopment(player.userId, dev, e)}
                             className="px-2 py-1 rounded-md bg-emerald-800/30 hover:bg-emerald-800/50 transition text-sm"
                             title={type || "development"}
                           >
                             <span className="text-lg">{renderDevEmoji(dev)}</span>
                           </button>
+                          {devMenu.open && (
+                               <DevelopmentMenu
+                                 type={devMenu.type}
+                                 style={{ position: "fixed", left: devMenu.pos.x, top: devMenu.pos.y }}
+                                 onCancel={() => setDevMenu({ ...devMenu, open: false })}
+                                 onConfirm={(resType) => {
+                                   onplayDevelopment(gameId, devMenu.type, resType);
+                                   setDevMenu({ ...devMenu, open: false });
+                                 }}
+                               />
+                             )}
+                          </React.Fragment>
                         ) : (
                           <span key={`dev-${idx}`} title={type || "development"} className="text-xl">{renderDevEmoji(dev)}</span>
                         );

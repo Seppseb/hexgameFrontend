@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import HexTile from "./HexTile";
 import HexNode from "./HexNode";
 import HexPath from "./HexPath";
@@ -53,7 +53,11 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
     setSelectedObj(null);
   };
 
-  //TODO cancel build on end round
+  //TODO cancel build on end round -> maybe like this?
+  useEffect(() => {
+    if (!isBuildPhase) cancelBuild();
+  }, [isBuildPhase]);
+
   const cancelBuild = () => {
     setSelectedObj(null);
   };

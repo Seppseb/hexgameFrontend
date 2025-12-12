@@ -26,18 +26,11 @@ export default function GameBoardPage() {
   const [diceValues, setDiceValues] = useState([0, 0]); // To hold the values from the server
 
 
-  //TODO handle show player order, make player page dynamic -> spit player pannels in quadrands, change backgroudncolor of whos turn, show own cars but not of other players
-  
-
-
-  //TODO add logging
-  //TODO only let some spots build for initital roads -> array of possible spots for roads after placing?, after that villages and roads -> each spot has can build map of player to boolean in backend for frontend to decide color
+  //TODO better logging
   //TODO add autoplay after some seconds
-  //TODO add special card using
   //TODO handle 7 dice
-  //TODO add scoring, winning
+  //TODO handle won event
   //TODO hide some infos
-  //TODO push to server pipeline
 
   const [isPlacingInitialVillage, setIsPlacingInitialVillage] = useState(false);
   const [isPlacingInitialRoad, setIsPlacingInitialRoad] = useState(false);
