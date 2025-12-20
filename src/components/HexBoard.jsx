@@ -5,7 +5,7 @@ import HexPath from "./HexPath";
 import HexPort from "./HexPort";
 import BuildMenu from "./BuildMenu";
 
-export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitialVillage, isPlacingInitialRoad, isBuildPhase, player }) {
+export default function HexBoard({ board, onBuild, onBuildRoad, onMoveRobber, isPlacingInitialVillage, isPlacingInitialRoad, isPlayerTurn, isMovingRobber, isBuildPhase, player }) {
   const rowConfig = [3, 4, 5, 4, 3];
 
   // --- STATE ---
@@ -39,6 +39,10 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
 
   const handlePathClick = (r, c, top, left) => {
     setSelectedObj({ type: "road", r, c, top, left });
+  };
+
+  const handleTileClick = (r, c) => {
+    onMoveRobber(r, c);
   };
 
   const confirmBuild = () => {
@@ -81,6 +85,9 @@ export default function HexBoard({ board, onBuild, onBuildRoad, isPlacingInitial
                 key={`${rowIndex}-${colIndex}`}
                 type={board?.tiles?.[rowIndex]?.[colIndex]?.type || "water"}
                 number={board?.tiles?.[rowIndex]?.[colIndex]?.number || "0"}
+                hasRobber={board?.tiles?.[rowIndex]?.[colIndex]?.hasRobber || false}
+                isPlacingRobber={isPlayerTurn && isMovingRobber}
+                onClick={() => handleTileClick(rowIndex, colIndex)}
               />
             ))}
           </div>

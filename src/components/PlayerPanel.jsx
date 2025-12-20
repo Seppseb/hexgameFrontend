@@ -3,9 +3,14 @@ import { acceptPlayerTrade, askPlayerTrade, bankTrade, cancelPlayerTrade, declin
 import DevelopmentMenu from "./DevelopmentMenu";
 
 
-function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeValue, onChange }) {
+function ResourceControl({ label, isPlayer, isPlayerTurn, hasResDebt, currentValue, changeValue, onChange }) {
   const downArrowVisible = (currentValue + changeValue) >= 1;
   const upArrowVisible = true;
+
+
+  //TODO handle give res from 7 throw even if not player turn
+  //TODO handle hasRObber
+  //TODO handle moving robber
 
   return (
     <div className="flex items-center justify-center text-sm mb-1">
@@ -22,7 +27,7 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, currentValue, changeVa
       </div>
 
       <div className="w-24 flex items-center justify-center">
-        {isPlayer && isPlayerTurn ? (
+        {isPlayer && (isPlayerTurn || hasResDebt) ? (
           <>
             <button
               onClick={() => onChange(-1)}
@@ -429,6 +434,7 @@ export default function PlayerPanel({
                       key={res}
                       isPlayer={player.userId === playerId}
                       isPlayerTurn={isPlayerTurn}
+                      hasResDebt={playerDebt != null && playerDebt !== 0}
                       label={res}
                       currentValue={player.resBalance ? player.resBalance[res] || 0 : 0}
                       changeValue={currentChange}

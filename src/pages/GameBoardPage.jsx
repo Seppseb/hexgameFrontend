@@ -4,7 +4,7 @@ import { useGameWebSocket } from "../hooks/useGameWebSocket";
 import PlayerPanel from "../components/PlayerPanel";
 import ShopBar from "../components/ShopBar";
 import HexBoard from "../components/HexBoard";
-import { getGame, sendReady, build, buildRoad, getUserInfo } from "../api/gamesApi";
+import { getGame, sendReady, build, buildRoad, getUserInfo, moveRobber } from "../api/gamesApi";
 import DiceRollPopup from "../components/DiceRollPopup"; 
 import { AnimatePresence } from "framer-motion";
 
@@ -21,6 +21,7 @@ export default function GameBoardPage() {
   const [playerId, setPlayerId] = useState("");
   const [player, setPlayer] = useState(null);
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
+  const [isMovingRobber, setIsMovingRobber] = useState(false);
   
   const [showDicePopup, setShowDicePopup] = useState(false);
   const [diceValues, setDiceValues] = useState([0, 0]); // To hold the values from the server
@@ -105,6 +106,7 @@ export default function GameBoardPage() {
     
   useEffect(() => {
     setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
+    setIsMovingRobber(!!game && game?.waitingForMovingRobber);
 
     if (!!game && !!game.players && !!playerId) {
       setPlayer(game.players[playerId]);
@@ -127,7 +129,7 @@ export default function GameBoardPage() {
         setIsPlacingInitialRoad(false);
       }
     }
-  }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad]);
+  }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad, game?.isWaitingForMovingRobber]);
 
   // center on load
   useEffect(() => {
@@ -175,6 +177,12 @@ export default function GameBoardPage() {
     buildRoad(gameId, row, col);
   };
 
+  const handleMoveRobber = (row, col) => {
+    if (game?.board?.robber?.location?.rowIndex === null) return;
+    if (game?.board?.robber?.location?.colIndex === null) return;
+    moveRobber(gameId, game?.board?.robber?.location?.rowIndex, game?.board?.robber?.location?.colIndex, row, col);
+  };
+
 
   return (
     <div className="flex flex-col h-screen w-screen bg-emerald-900 text-white">
@@ -205,8 +213,11 @@ export default function GameBoardPage() {
               board ={ game && game.board ? game.board : null }
               onBuild={handleBuild}
               onBuildRoad={handleBuildRoad}
+              onMoveRobber={handleMoveRobber}
               isPlacingInitialVillage={isPlacingInitialVillage}
               isPlacingInitialRoad={isPlacingInitialRoad}
+              isPlayerTurn={isPlayerTurn}
+              isMovingRobber={isMovingRobber}
               isBuildPhase={game?.state === 'IN_PROGRESS' && isPlayerTurn}
               player={player}
             />
