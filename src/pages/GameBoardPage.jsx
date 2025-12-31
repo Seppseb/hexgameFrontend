@@ -4,7 +4,8 @@ import { useGameWebSocket } from "../hooks/useGameWebSocket";
 import PlayerPanel from "../components/PlayerPanel";
 import ShopBar from "../components/ShopBar";
 import HexBoard from "../components/HexBoard";
-import { getGame, sendReady, build, buildRoad, getUserInfo, moveRobber } from "../api/gamesApi";
+import VictimChoosePopup from "../components/VictimChoosePopup";
+import { getGame, sendReady, build, buildRoad, getUserInfo, moveRobber, chooseVictim } from "../api/gamesApi";
 import DiceRollPopup from "../components/DiceRollPopup"; 
 import { AnimatePresence } from "framer-motion";
 
@@ -22,6 +23,7 @@ export default function GameBoardPage() {
   const [player, setPlayer] = useState(null);
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
   const [isMovingRobber, setIsMovingRobber] = useState(false);
+  const [showVictimPopup, setShowVictimPopup] = useState(false);
   
   const [showDicePopup, setShowDicePopup] = useState(false);
   const [diceValues, setDiceValues] = useState([0, 0]); // To hold the values from the server
@@ -80,6 +82,12 @@ export default function GameBoardPage() {
   }, [isConnected, gameId]);
 
 
+  const handleChooseVictim = (chosenPlayerId) => {
+    chooseVictim(gameId, chosenPlayerId);
+    setShowVictimPopup(false);
+  };
+
+
   useEffect(() => {
     fetchGame();
     fetchUserInfo();
@@ -107,6 +115,11 @@ export default function GameBoardPage() {
   useEffect(() => {
     setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
     setIsMovingRobber(!!game && game?.waitingForMovingRobber);
+    if (game?.waitingForChoosingVictim && isPlayerTurn) {
+      setShowVictimPopup(true);
+    } else {
+      setShowVictimPopup(false);
+    }
 
     if (!!game && !!game.players && !!playerId) {
       setPlayer(game.players[playerId]);
@@ -129,7 +142,7 @@ export default function GameBoardPage() {
         setIsPlacingInitialRoad(false);
       }
     }
-  }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad, game?.isWaitingForMovingRobber]);
+  }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad, game?.isWaitingForMovingRobber, game?.waitingForChoosingVictim]);
 
   // center on load
   useEffect(() => {
@@ -244,6 +257,15 @@ export default function GameBoardPage() {
           <DiceRollPopup
             diceValues={diceValues}
             onClose={handlePopupClose}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showVictimPopup && (
+          <VictimChoosePopup
+            possibleVictims={game?.possibleVictims}
+            onChoose={handleChooseVictim}
           />
         )}
       </AnimatePresence>
