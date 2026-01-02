@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listGames, createGame } from "../api/gamesApi";
+import { listGames, createGame, createGameFairNumbers } from "../api/gamesApi";
 import GameTable from "../components/GameTable";
 import GameFilter from "../components/GameFilter";
 import { useNavigate } from "react-router-dom";
@@ -33,13 +33,12 @@ export default function GamesPage() {
   }, []);
 
   const handleCreateGame = async () => {
-    const res = await createGame();
-    navigate(`/games/${res.data.id}`);
+    navigate(`/createGame`);
   };
 
   const filtered = games.filter(g => {
     if (filter === "notStarted") return g.state === "WAITING_FOR_PLAYERS";
-    if (filter === "ongoing") return g.state === "IN_PROGRESS";
+    if (filter === "ongoing") return g.state === "ROLL_FOR_POSITION" || g.state === "PLACEMENT" || g.state === "IN_PROGRESS";
     if (filter === "past") return g.state === "FINISHED";
     return true;
   });
@@ -48,8 +47,11 @@ export default function GamesPage() {
     <div>
       <h2>Available Games</h2>
       <GameFilter filter={filter} setFilter={setFilter} />
-      <button onClick={handleCreateGame}>Create New Game</button>
       <GameTable games={filtered}/>
+      <div>
+        <br></br>
+        <button onClick={handleCreateGame}>Create New Game</button>
+      </div>
     </div>
   );
 }
