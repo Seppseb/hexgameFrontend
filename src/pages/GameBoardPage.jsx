@@ -111,8 +111,8 @@ export default function GameBoardPage() {
     
   useEffect(() => {
     setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
-    setIsMovingRobber(!!game && game?.waitingForMovingRobber);
-    if (game?.waitingForChoosingVictim && isPlayerTurn) {
+    setIsMovingRobber(!!game && game?.isWaitingForMovingRobber);
+    if (game?.isWaitingForChoosingVictim && isPlayerTurn) {
       setShowVictimPopup(true);
     } else {
       setShowVictimPopup(false);
@@ -135,7 +135,7 @@ export default function GameBoardPage() {
         setIsPlacingInitialRoad(false);
       }
     }
-  }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad, game?.isWaitingForMovingRobber, game?.waitingForChoosingVictim]);
+  }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad, game?.isWaitingForMovingRobber, game?.isWaitingForChoosingVictim]);
 
   // center on load
   useEffect(() => {
