@@ -25,5 +25,6 @@ export const cancelPlayerTrade = (gameId) => API.post(`/${gameId}/cancelPlayerTr
 export const settleDebt = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/settleDebt/${wood}/${clay}/${wheat}/${wool}/${stone}`);
 export const moveRobber = (gameId, oldRow, oldCol, row, col) => API.post(`/${gameId}/moveRobber/${oldRow}/${oldCol}/${row}/${col}`);
 export const endTurn = (gameId) => API.post(`/${gameId}/endTurn`);
+export const getGameInfo = (gameId) => API.get(`/info/${gameId}`);
 export const getGame = (gameId) => API.get(`/${gameId}`);
 export const getUserInfo = () => API.get(`/whoAmI`);

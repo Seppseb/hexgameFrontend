@@ -70,7 +70,7 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, hasResDebt, currentVal
 export default function PlayerPanel({
   side = "left",
   players,
-  playerId,
+  you,
   gameId,
   isPlayerTurn,
   currentTradeOffer,
@@ -99,13 +99,12 @@ export default function PlayerPanel({
   };
 
   useEffect(() => {
-    if (!playerId) return;
     if (!players) return;
-    if (!players[playerId]) return;
-    if (!players[playerId].tradeFactor) return;
+    if (!you) return;
+    if (!you.tradeFactor) return;
 
-    if (players[playerId].resDebt !== null) {
-      setPlayerDebt(players[playerId].resDebt);
+    if (you.resDebt !== null) {
+      setPlayerDebt(you.resDebt);
     }
 
     let takenRessources = 0;
@@ -126,10 +125,10 @@ export default function PlayerPanel({
         let playerGivesAmount = -playerGetsAmount;
         givenRessources += playerGivesAmount;
 
-        let overflow = playerGivesAmount % players[playerId].tradeFactor[res];
+        let overflow = playerGivesAmount % you.tradeFactor[res];
         playerGivesAmount -= overflow;
-        canTakeRessourcesFromOverFlow += overflow / players[playerId].tradeFactor[res];
-        canTakeRessources += playerGivesAmount / players[playerId].tradeFactor[res];
+        canTakeRessourcesFromOverFlow += overflow / you.tradeFactor[res];
+        canTakeRessources += playerGivesAmount / you.tradeFactor[res];
 
       }
     }
@@ -161,22 +160,22 @@ export default function PlayerPanel({
     setCanTradeBank(takenRessources === canTakeRessources);
 
     
-  }, [pendingChanges, players, playerId, canTradeMultipleRessourcesAtOnce]);
+  }, [pendingChanges, players, you, canTradeMultipleRessourcesAtOnce]);
 
   useEffect(() => {
     resetResourceChange();
   }, [isPlayerTurn]);
 
   let playersOfThisSide = [];
-  if (playerId && players && players[playerId]) {
+  if (!!players && !!you) {
     if (side === "left") {
-      playersOfThisSide[0] = players[playerId];
+      playersOfThisSide[0] = you;
     } else {
       for (const id in players) {
         let player = players[id];
-        if (id == playerId) continue;
+        if (id == you.userId) continue;
         let index = player.playerIndex;
-        if (index > players[playerId].playerIndex) index--;
+        if (index > you.playerIndex) index--;
         playersOfThisSide[index] = player;
       }
     }
@@ -192,6 +191,7 @@ export default function PlayerPanel({
       }
     }
   }
+  console.log(playersOfThisSide);
 
   const palette = {
     red: "#ef4444",
@@ -214,10 +214,9 @@ export default function PlayerPanel({
   };
 
   const onBankTrade = () => {
-    if (!playerId) return;
     if (!players) return;
-    if (!players[playerId]) return;
-    if (!players[playerId].tradeFactor) return;
+    if (!you) return;
+    if (!you.tradeFactor) return;
 
     if (!gameId) return;
 
@@ -244,7 +243,7 @@ export default function PlayerPanel({
   };
 
   const onAskPlayerTrade = () => {
-    if (!playerId) return;
+    if (!you?.userId) return;
 
     if (!gameId) return;
 
@@ -268,9 +267,8 @@ export default function PlayerPanel({
 
   //TODO player also can have debt if not player turn-> change layout
   const onSettleDebt = () => {
-    if (!playerId) return;
     if (!players) return;
-    if (!players[playerId]) return;
+    if (!you) return;
     if (!gameId) return;
 
     if (!canSettleDebt) return;
@@ -340,7 +338,8 @@ export default function PlayerPanel({
   const handleRespondToTrade = (accept) => {
     if (!currentTradeOffer) return;
     if (!gameId) return;
-    const accepterId = playerId;
+    if (!you) return;
+    const accepterId = you.userId;
     if (!accepterId) return;
     if (accept) {
       acceptPlayerTrade(gameId, currentTradeOffer.wood, currentTradeOffer.clay, currentTradeOffer.wheat, currentTradeOffer.wool, currentTradeOffer.stone);
@@ -368,10 +367,9 @@ export default function PlayerPanel({
     setCanAcceptTrade(false);
     if (!currentTradeOffer) return;
     if (isPlayerTurn) return;
-    if (!playerId) return;
     if (!players) return;
-    if (!players[playerId]) return;
-    const p = players[playerId];
+    if (!you) return;
+    const p = you;
     if (!p.resBalance) return;
     if (currentTradeOffer.wood === null || p.resBalance["wood"] === null || currentTradeOffer.wood > p.resBalance["wood"]) return;
     if (currentTradeOffer.clay === null || p.resBalance["clay"] === null || currentTradeOffer.clay > p.resBalance["clay"]) return;
@@ -390,7 +388,7 @@ export default function PlayerPanel({
             <div
               key={player.name}
               className={`bg-emerald-700 rounded-xl p-3 shadow text-sm text-center text-white 
-                ${player.userId === playerId ? 'border-2 border-yellow-400' : ''}`
+                ${player.userId == you?.userId ? 'border-2 border-yellow-400' : ''}`
               }
             >
               <p className="font-semibold mb-2 flex justify-center items-center gap-2">
@@ -407,7 +405,7 @@ export default function PlayerPanel({
                 <span className="text-xs tracking-wide">{(player.victoryPoints ?? 0)} VPs</span>
               </p>
 
-              {player.userId === playerId && playerDebt != 0 && (
+              {player.userId === you?.userId && playerDebt != 0 && (
                 <>
                 {(
                   playerDebt <= 0 ? (
@@ -432,7 +430,7 @@ export default function PlayerPanel({
                   return (
                     <ResourceControl
                       key={res}
-                      isPlayer={player.userId === playerId}
+                      isPlayer={player.userId === you?.userId}
                       isPlayerTurn={isPlayerTurn}
                       hasResDebt={playerDebt != null && playerDebt !== 0}
                       label={res}
@@ -454,7 +452,7 @@ export default function PlayerPanel({
                 )}
               </div>
 
-              {player.userId === playerId && player.developments && player.developments.length > 0 && (
+              {player.userId === you?.userId && player.developments && player.developments.length > 0 && (
                 <div className="mt-3">
                   <div className="text-xs mb-1">Unused developments:</div>
                   <div className="flex justify-center items-center gap-2 flex-wrap">
@@ -493,21 +491,21 @@ export default function PlayerPanel({
               )}
 
               {
-                player.userId === playerId && canTradeBank && isPlayerTurn && <div className="mt-3">
+                player.userId === you?.userId && canTradeBank && isPlayerTurn && <div className="mt-3">
                   <button onClick={onBankTrade} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
                     Trade with Bank
                   </button>
                 </div>
               }
               {
-                player.userId === playerId && canTradePlayer && isPlayerTurn && <div className="mt-3">
+                player.userId === you?.userId && canTradePlayer && isPlayerTurn && <div className="mt-3">
                   <button onClick={onAskPlayerTrade} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
                     Offer Trade for other Players
                   </button>
                 </div>
               }
 
-              {player.userId === playerId && playerDebt != 0 && canSettleDebt && (
+              {player.userId === you?.userId && playerDebt != 0 && canSettleDebt && (
                 <>
                 {(
                   playerDebt <= 0 ? (
@@ -529,7 +527,7 @@ export default function PlayerPanel({
               )}
 
               {/* ---- NEW: Render currentTradeOffer under the current player's box (only for the current player) ---- */}
-              {player.userId === playerId && currentTradeOffer && (
+              {player.userId === you?.userId && currentTradeOffer && (
                 <div className="mt-4 bg-emerald-800/30 p-2 rounded-md text-left">
                   <div className="text-xs mb-2 font-semibold">Active Trade Offer</div>
 

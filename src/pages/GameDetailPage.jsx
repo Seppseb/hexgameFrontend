@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import { getGame, getUserInfo, joinGame, startGame } from "../api/gamesApi";
+import { getGameInfo, getUserInfo, joinGame, startGame } from "../api/gamesApi";
 import { useGameWebSocket } from "../hooks/useGameWebSocket";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +28,7 @@ export default function GameDetailPage() {
   useGameWebSocket(gameId, handleWebSocketMessage);
 
   const fetchGame = async () => {
-    const res = await getGame(gameId);
+    const res = await getGameInfo(gameId);
     setGame(res.data);
   };
 
