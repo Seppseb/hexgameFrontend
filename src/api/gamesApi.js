@@ -9,6 +9,7 @@ const API = axios.create({
 
 export const listGames = () => API.get("");
 export const createGame = () => API.post("/create");
+export const createGameFairNumbers = () => API.post("/create/fairNumbers");
 export const joinGame = (gameId, name) => API.post(`/${gameId}/join?name=${name}`);
 export const startGame = (gameId) => API.post(`/${gameId}/start`);
 export const sendReady = (gameId) => API.post(`/${gameId}/ready`);
@@ -24,6 +25,7 @@ export const finishPlayerTrade = (gameId, partnerId) => API.post(`/${gameId}/fin
 export const cancelPlayerTrade = (gameId) => API.post(`/${gameId}/cancelPlayerTrade`);
 export const settleDebt = (gameId, wood, clay, wheat, wool, stone) => API.post(`/${gameId}/settleDebt/${wood}/${clay}/${wheat}/${wool}/${stone}`);
 export const moveRobber = (gameId, oldRow, oldCol, row, col) => API.post(`/${gameId}/moveRobber/${oldRow}/${oldCol}/${row}/${col}`);
+export const chooseVictim = (gameId, victimId) => API.post(`/${gameId}/chooseVictim/${victimId}`);
 export const endTurn = (gameId) => API.post(`/${gameId}/endTurn`);
 export const getGameInfo = (gameId) => API.get(`/info/${gameId}`);
 export const getGame = (gameId) => API.get(`/${gameId}`);

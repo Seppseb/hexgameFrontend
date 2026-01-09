@@ -7,6 +7,7 @@ import GamesPage from "./pages/GamesPage";
 import GameDetailPage from "./pages/GameDetailPage";
 import GameBoardPage from "./pages/GameBoardPage";
 import Navbar from "./components/Navbar";
+import CreateGamePage from "./pages/CreateGamePage";
 
 function AppContent() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/games" element={<GamesPage />} />
+          <Route path="/createGame" element={<CreateGamePage />} />
           <Route path="/games/:gameId" element={<GameDetailPage />} />
           <Route path="/games/:gameId/board" element={<GameBoardPage />} />
         </Routes>
