@@ -8,8 +8,7 @@ const API = axios.create({
 });
 
 export const listGames = () => API.get("");
-export const createGame = () => API.post("/create");
-export const createGameFairNumbers = () => API.post("/create/fairNumbers");
+export const createGame = (config) => API.post("/create", config);
 export const joinGame = (gameId, name) => API.post(`/${gameId}/join?name=${name}`);
 export const startGame = (gameId) => API.post(`/${gameId}/start`);
 export const sendReady = (gameId) => API.post(`/${gameId}/ready`);

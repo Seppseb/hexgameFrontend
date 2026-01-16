@@ -1,9 +1,5 @@
 import React from 'react';
 
-//TODO new atribute isPlaceable which contains array of users that can place road in backend, if placeable send color beige, remove isPlacing road , then same for village
-
-
-//TODO adust stuff here
 export default function HexPath({ 
   color, 
   isPlacingInitialRoad,

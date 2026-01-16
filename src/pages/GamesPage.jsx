@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listGames, createGame, createGameFairNumbers } from "../api/gamesApi";
+import { listGames } from "../api/gamesApi";
 import GameTable from "../components/GameTable";
 import GameFilter from "../components/GameFilter";
 import { useNavigate } from "react-router-dom";
@@ -12,8 +12,6 @@ export default function GamesPage() {
 
   const navigate = useNavigate();
 
-  //TODO check gamestate and sorting stuff of games
-  //TODO update avaliable games via socket
 
   const fetchGames = async () => {
     try {

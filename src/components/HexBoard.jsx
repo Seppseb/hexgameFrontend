@@ -57,7 +57,6 @@ export default function HexBoard({ board, onBuild, onBuildRoad, onMoveRobber, is
     setSelectedObj(null);
   };
 
-  //TODO cancel build on end round -> maybe like this?
   useEffect(() => {
     if (!isBuildPhase) cancelBuild();
   }, [isBuildPhase]);

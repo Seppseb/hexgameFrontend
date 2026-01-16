@@ -3,14 +3,9 @@ import { acceptPlayerTrade, askPlayerTrade, bankTrade, cancelPlayerTrade, declin
 import DevelopmentMenu from "./DevelopmentMenu";
 
 
-function ResourceControl({ label, isPlayer, isPlayerTurn, hasResDebt, currentValue, changeValue, onChange }) {
+function ResourceControl({ label, isPlayerTurn, hasResDebt, currentValue, changeValue, onChange }) {
   const downArrowVisible = (currentValue + changeValue) >= 1;
   const upArrowVisible = true;
-
-
-  //TODO handle give res from 7 throw even if not player turn
-  //TODO handle hasRObber
-  //TODO handle moving robber
 
   return (
     <div className="flex items-center justify-center text-sm mb-1">
@@ -27,7 +22,7 @@ function ResourceControl({ label, isPlayer, isPlayerTurn, hasResDebt, currentVal
       </div>
 
       <div className="w-24 flex items-center justify-center">
-        {isPlayer && (isPlayerTurn || hasResDebt) ? (
+        {isPlayerTurn || hasResDebt ? (
           <>
             <button
               onClick={() => onChange(-1)}
@@ -191,7 +186,6 @@ export default function PlayerPanel({
       }
     }
   }
-  console.log(playersOfThisSide);
 
   const palette = {
     red: "#ef4444",
@@ -211,6 +205,14 @@ export default function PlayerPanel({
     roadwork: "🛣️",
     monopoly: "💰",
     victoryPoint: "⭐",
+  };
+
+  const devCardDescription = {
+    knight: "Moves the robber and steals 1 resource from a player.",
+    development: "Gain any 2 resources.",
+    roadwork: "Place 2 roads for free.",
+    monopoly: "Choose a resource. All other players give you all of their Cards of that type.",
+    victoryPoint: "Gain 1 victory point.",
   };
 
   const onBankTrade = () => {
@@ -265,7 +267,6 @@ export default function PlayerPanel({
     askPlayerTrade(gameId, wood, clay, wheat, wool, stone);
   };
 
-  //TODO player also can have debt if not player turn-> change layout
   const onSettleDebt = () => {
     if (!players) return;
     if (!you) return;
@@ -286,7 +287,6 @@ export default function PlayerPanel({
       if (res === "wool") wool = val;
       if (res === "stone") stone = val;
     }
-    //TODO implement backend
     settleDebt(gameId, wood, clay, wheat, wool, stone);
     resetResourceChange();
     setCanSettleDebt(false);
@@ -299,8 +299,6 @@ export default function PlayerPanel({
     if (typeof item === "object" && item.type) return item.type;
     return null;
   };
-
-  //todo open menu on dev cardclick instead of instand send?
 
   const renderDevEmoji = (dev) => {
     const type = devTypeFromItem(dev);
@@ -422,6 +420,7 @@ export default function PlayerPanel({
 
               )}
 
+              {player.userId === you?.userId ? (
               <div className="flex flex-col">
                 {resources.map((res) => {
                   const changeKey = `${res}`;
@@ -430,7 +429,6 @@ export default function PlayerPanel({
                   return (
                     <ResourceControl
                       key={res}
-                      isPlayer={player.userId === you?.userId}
                       isPlayerTurn={isPlayerTurn}
                       hasResDebt={playerDebt != null && playerDebt !== 0}
                       label={res}
@@ -441,7 +439,26 @@ export default function PlayerPanel({
                   );
                 })}
               </div>
-
+            ) : (
+              <div className="flex flex-col text-sm mb-1">
+                <div className="flex items-center justify-center">
+                  <span className="capitalize mr-2">
+                    Resource Cards:&nbsp;
+                  </span>
+                  <span className="font-mono text-center">
+                    {player.totalResBalance}
+                  </span>
+                </div>
+                <div className="flex items-center justify-center">
+                  <span className="capitalize mr-2">
+                    Unused Development Cards:&nbsp;
+                  </span>
+                  <span className="font-mono text-center">
+                    {player.numberDevelopments}
+                  </span>
+                </div>
+              </div>
+            )}
               <div className="mt-2 flex justify-center items-center gap-2 flex-wrap">
                 {(player.usedDevelopments && player.usedDevelopments.length > 0) && (
                   player.usedDevelopments.map((dev, idx) => (
@@ -459,13 +476,14 @@ export default function PlayerPanel({
                     {(
                       player.developments.map((dev, idx) => {
                         const type = devTypeFromItem(dev);
+                        const description = type ? devCardDescription[type] : "";
                         return isPlayerTurn ? (
                           <React.Fragment key={`dev-${idx}`}>
                           <button
                             key={`dev-${idx}`}
                             onClick={(e) => handleClickDevelopment(player.userId, dev, e)}
                             className="px-2 py-1 rounded-md bg-emerald-800/30 hover:bg-emerald-800/50 transition text-sm"
-                            title={type || "development"}
+                            title={(type || "development") + ": " + (description || "")}
                           >
                             <span className="text-lg">{renderDevEmoji(dev)}</span>
                           </button>

@@ -6,7 +6,8 @@ import ShopBar from "../components/ShopBar";
 import HexBoard from "../components/HexBoard";
 import VictimChoosePopup from "../components/VictimChoosePopup";
 import { getGame, sendReady, build, buildRoad, getUserInfo, moveRobber, chooseVictim } from "../api/gamesApi";
-import DiceRollPopup from "../components/DiceRollPopup"; 
+import DiceRollPopup from "../components/DiceRollPopup";
+import WinPopup from "../components/WinPopup";
 import { AnimatePresence } from "framer-motion";
 
 export default function GameBoardPage() {
@@ -26,14 +27,9 @@ export default function GameBoardPage() {
   const [showVictimPopup, setShowVictimPopup] = useState(false);
   
   const [showDicePopup, setShowDicePopup] = useState(false);
+  const [showWinPopup, setShowWinPopup] = useState(true);
   const [diceValues, setDiceValues] = useState([0, 0]); // To hold the values from the server
 
-
-  //TODO better logging
-  //TODO add autoplay after some seconds
-  //TODO handle 7 dice
-  //TODO handle won event
-  //TODO hide some infos
 
   const [isPlacingInitialVillage, setIsPlacingInitialVillage] = useState(false);
   const [isPlacingInitialRoad, setIsPlacingInitialRoad] = useState(false);
@@ -95,7 +91,6 @@ export default function GameBoardPage() {
       setPlayers(res.data.players);
     }
     if (res.data.you) {
-      console.log(res.data.you);
       setPlayer(res.data.you);
     }
   };
@@ -173,6 +168,10 @@ export default function GameBoardPage() {
 
     }
 
+  };
+
+  const handleReturnToGame = () => {
+    setShowWinPopup(false);
   };
 
   const handleBuild = (row, col) => {
@@ -259,6 +258,17 @@ export default function GameBoardPage() {
           <VictimChoosePopup
             possibleVictims={game?.possibleVictims}
             onChoose={handleChooseVictim}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showWinPopup && game?.winner && (
+          <WinPopup
+            winner={game.winner}
+            singleDieStats={game.singleDieStats}
+            doubleDieStats={game.doubleDieStats}
+            onReturnToGame={handleReturnToGame}
           />
         )}
       </AnimatePresence>
