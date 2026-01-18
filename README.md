@@ -30,7 +30,7 @@ npm run copy-and-deploy
 //unused dev cards umgedreht sehen DONE
 // res verdecken DONE
 // hide bank res option DONE
-//option standart zahlen verteilung
+//option standart zahlen verteilung DONE
 //würfeln erst später
 //win nachricht DONE
 //dev card round limit

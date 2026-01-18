@@ -84,6 +84,11 @@ export default function GameDetailPage() {
     }
   }
 
+  const handleNameFieldChange = (name) => {
+    if (name && name.length > 15) return;
+    setName(name);
+  }
+
   useEffect(() => {
     fetchGame();
     fetchUserInfo();
@@ -107,7 +112,7 @@ export default function GameDetailPage() {
         <input
           placeholder="Your name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => handleNameFieldChange(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         <button onClick={handleJoin}>Join Game</button>
