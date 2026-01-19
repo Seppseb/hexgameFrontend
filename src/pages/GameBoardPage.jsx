@@ -5,7 +5,7 @@ import PlayerPanel from "../components/PlayerPanel";
 import ShopBar from "../components/ShopBar";
 import HexBoard from "../components/HexBoard";
 import VictimChoosePopup from "../components/VictimChoosePopup";
-import { getGame, sendReady, build, buildRoad, getUserInfo, moveRobber, chooseVictim } from "../api/gamesApi";
+import { getGame, sendReady, build, buildRoad, getUserInfo, moveRobber, chooseVictim, confirmDice } from "../api/gamesApi";
 import DiceRollPopup from "../components/DiceRollPopup";
 import WinPopup from "../components/WinPopup";
 import { AnimatePresence } from "framer-motion";
@@ -37,27 +37,25 @@ export default function GameBoardPage() {
 
   const handleWebSocketMessage = useCallback((event) => {
     fetchGame();
-    // Check if it's a 'roll dice' message for the current player
     if (event.type === 'INITIAL_ROLL' && event.playerId === playerId) {
-      // Assume the dice values are in the event payload
       if (event.message) {
         const dice1 = event.message[0];
         const dice2 = event.message[1];
         setDiceValues([dice1, dice2]);
-        setShowDicePopup(true); // <--- Function call to open the popup
+        setShowDicePopup(true);
       }
     }
     else if (event.type === 'INITIAL_PLACE' && event.playerId === playerId) {
-      //setIsPlacingInitialVillage(true);
+
     }
     else if (event.type === 'START_TURN' && event.playerId === playerId) {
-      // Assume the dice values are in the event payload
-      if (event.message) {
-        const dice1 = event.message[0];
-        const dice2 = event.message[1];
-        setDiceValues([dice1, dice2]);
-        setShowDicePopup(true); // <--- Function call to open the popup
-      }
+      
+    }
+    else if (event.type === 'DICE_RESULT' && event.playerId === playerId) {
+
+    }
+    else if (event.type === 'THREW_DICE' && event.playerId === playerId) {
+
     }
     setLog(event);
   }, [playerId]);
@@ -113,7 +111,7 @@ export default function GameBoardPage() {
       setShowVictimPopup(false);
     }
 
-    if (!playerId || playerId !== game?.currentPlayer?.userId) {
+    if (!isPlayerTurn) {
       setIsPlacingInitialVillage(false);
       setIsPlacingInitialRoad(false);
     } else {
@@ -129,6 +127,13 @@ export default function GameBoardPage() {
         setIsPlacingInitialVillage(false);
         setIsPlacingInitialRoad(false);
       }
+    }
+
+    if (isPlayerTurn && game?.lastDiceRoll && game?.lastDiceRoll.length == 2) {
+      const dice1 = game?.lastDiceRoll[0];
+      const dice2 = game?.lastDiceRoll[1];
+      setDiceValues([dice1, dice2]);
+      setShowDicePopup(true);
     }
   }, [playerId, game, game?.currentPlayer, game?.state, game?.initialIsPlacingRoad, game?.isWaitingForMovingRobber, game?.isWaitingForChoosingVictim]);
 
@@ -160,12 +165,12 @@ export default function GameBoardPage() {
     setIsDragging(false);
   };
   
-  const handlePopupClose = () => {
+  const handleConfirmDice = () => {
     setShowDicePopup(false);
     if (!game || !game.state || game.state === "ROLL_FOR_POSITION") {
       sendReady(gameId);
     } else {
-
+      confirmDice(gameId);
     }
 
   };
@@ -223,7 +228,7 @@ export default function GameBoardPage() {
               isPlacingInitialRoad={isPlacingInitialRoad}
               isPlayerTurn={isPlayerTurn}
               isMovingRobber={isMovingRobber}
-              isBuildPhase={game?.state === 'IN_PROGRESS' && isPlayerTurn}
+              isBuildPhase={(game?.state === 'IN_PROGRESS' || game?.state === 'FINISHED') && isPlayerTurn && game?.isBuildPhase}
               player={player}
             />
           </div>
@@ -239,7 +244,8 @@ export default function GameBoardPage() {
           gameId = {gameId}
           bank = {game?.bank}
           log = {log}
-          isPlayerTurn = {isPlayerTurn && game?.state === 'IN_PROGRESS'}
+          isPlayerTurn = {isPlayerTurn && (game?.state === 'IN_PROGRESS' || game?.state === 'FINISHED')}
+          isBuildPhase = {game?.isBuildPhase}
         />
       </div>
 
@@ -248,7 +254,7 @@ export default function GameBoardPage() {
         {showDicePopup && (
           <DiceRollPopup
             diceValues={diceValues}
-            onClose={handlePopupClose}
+            onConfirm={handleConfirmDice}
           />
         )}
       </AnimatePresence>

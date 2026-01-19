@@ -12,6 +12,8 @@ export const createGame = (config) => API.post("/create", config);
 export const joinGame = (gameId, name) => API.post(`/${gameId}/join?name=${name}`);
 export const startGame = (gameId) => API.post(`/${gameId}/start`);
 export const sendReady = (gameId) => API.post(`/${gameId}/ready`);
+export const throwDiceForTurn = (gameId) => API.post(`/${gameId}/throwDiceForTurn`);
+export const confirmDice = (gameId) => API.post(`/${gameId}/confirmDice`);
 export const build = (gameId, row, col) => API.post(`/${gameId}/build/${row}/${col}`);
 export const buildRoad = (gameId, row, col) => API.post(`/${gameId}/buildRoad/${row}/${col}`);
 export const buyDevelopment = (gameId) => API.post(`/${gameId}/buyDevelopment`);

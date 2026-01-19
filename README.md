@@ -31,10 +31,11 @@ npm run copy-and-deploy
 // res verdecken DONE
 // hide bank res option DONE
 //option standart zahlen verteilung DONE
-//würfeln erst später
+//würfeln erst später DONE
+//ritter kann auch vor würfeln gespielt werden DONE
 //win nachricht DONE
-//dev card round limit
-//nur eine dev card pro runde
+//dev card round limit DONE
+//nur eine dev card pro runde DONE
 //erklärungen dev card DONE
 //dev cards left bank DONE
 //sounds

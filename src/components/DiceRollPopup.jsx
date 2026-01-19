@@ -20,7 +20,7 @@ const Dice = ({ value, isRolling, hasRolled }) => (
     </motion.div>
   );
 
-export default function DiceRollPopup({ diceValues, onClose }) {
+export default function DiceRollPopup({ diceValues, onConfirm }) {
   const [isRolling, setIsRolling] = useState(false);
   const [hasRolled, setHasRolled] = useState(false);
 
@@ -37,6 +37,10 @@ export default function DiceRollPopup({ diceValues, onClose }) {
     }, 1000);
   };
 
+  const handleConfirm = () => {
+    onConfirm();
+  }
+
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
@@ -44,7 +48,6 @@ export default function DiceRollPopup({ diceValues, onClose }) {
   };
 
   return (
-    // ✨ FIX: Ensured proper Tailwind classes for full-screen centering
     <motion.div
       // Use "fixed inset-0" to cover the whole viewport
       // Use "flex items-center justify-center" to center the child element
@@ -90,7 +93,7 @@ export default function DiceRollPopup({ diceValues, onClose }) {
 
         {hasRolled && (
           <button
-            onClick={onClose}
+            onClick={handleConfirm}
             className="mt-4 text-sm text-gray-300 hover:text-white"
           >
             Confirm

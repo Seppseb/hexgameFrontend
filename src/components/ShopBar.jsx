@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
-import { buyDevelopment, endTurn } from "../api/gamesApi";
+import { buyDevelopment, endTurn, throwDiceForTurn } from "../api/gamesApi";
 
-export default function ShopBar({ gameId, bank, log, isPlayerTurn }) {
+export default function ShopBar({ gameId, bank, log, isPlayerTurn, isBuildPhase }) {
 
     const [logMessage, setLogMessage] = useState("");
 
     useEffect(() => {
       if (!log) return;
-      if (log.type === "INITIAL_ROLL" || log.type === "START_TURN") {
+      if (log.type === "THREW_DICE") {
         const dice1 = Number(log.message[0]);
         const dice2 = Number(log.message[1]);
         const diceValue = dice1 + dice2;
@@ -18,6 +18,10 @@ export default function ShopBar({ gameId, bank, log, isPlayerTurn }) {
 
     const handleBuyDevelopment = () => {
       buyDevelopment(gameId);
+    };
+
+    const handleThrowDice = () => {
+      throwDiceForTurn(gameId);
     };
 
     const handleEndTurn = () => {
@@ -37,7 +41,10 @@ export default function ShopBar({ gameId, bank, log, isPlayerTurn }) {
         {isPlayerTurn && <button onClick={handleBuyDevelopment} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
           Buy Development Card
         </button>}
-        {isPlayerTurn && <button onClick={handleEndTurn} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
+        {isPlayerTurn && !isBuildPhase && <button onClick={handleThrowDice} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
+          Throw Dice
+        </button>}
+        {isPlayerTurn && isBuildPhase && <button onClick={handleEndTurn} className="bg-emerald-700 px-4 py-2 rounded-xl shadow hover:bg-emerald-600">
           End Turn
         </button>}
       </div>
