@@ -6,6 +6,7 @@ export default function HexNode({
   isPlacingInitialVillage,
   isBuildPhase,
   canPlaceVillage,
+  canPlaceCity,
   buildFactor, 
   top, 
   left, 
@@ -31,7 +32,7 @@ export default function HexNode({
   
   // --- 2. INTERACTIVITY CHECK ---
   // Only beige nodes are clickable or villages that belong to user in build phase
-  const isInteractive = color === "beige" || (color === playerColor && buildFactor == 1 && isBuildPhase); 
+  const isInteractive = color === "beige" || (color === playerColor && buildFactor == 1 && isBuildPhase && canPlaceCity); 
 
   return (
     <div

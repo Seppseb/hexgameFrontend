@@ -68,6 +68,8 @@ export default function PlayerPanel({
   you,
   gameId,
   isPlayerTurn,
+  playedDevCardThisRound,
+  gameRound,
   currentTradeOffer,
 }) {
   const [pendingChanges, setPendingChanges] = useState({});
@@ -477,7 +479,8 @@ export default function PlayerPanel({
                       player.developments.map((dev, idx) => {
                         const type = devTypeFromItem(dev);
                         const description = type ? devCardDescription[type] : "";
-                        return isPlayerTurn ? (
+                        let canBePlayedThisRound = dev?.canBePlayedInRound <= gameRound && ((!playedDevCardThisRound) || type == "victoryPoint");
+                        return (isPlayerTurn && canBePlayed) ? (
                           <React.Fragment key={`dev-${idx}`}>
                           <button
                             key={`dev-${idx}`}

@@ -103,15 +103,16 @@ export default function GameBoardPage() {
   
     
   useEffect(() => {
-    setIsPlayerTurn(!!playerId && playerId === game?.currentPlayer?.userId);
+    const isNowPlayerTurn = !!playerId && playerId === game?.currentPlayer?.userId;
+    setIsPlayerTurn(isNowPlayerTurn);
     setIsMovingRobber(!!game && game?.isWaitingForMovingRobber);
-    if (game?.isWaitingForChoosingVictim && isPlayerTurn) {
+    if (game?.isWaitingForChoosingVictim && isNowPlayerTurn) {
       setShowVictimPopup(true);
     } else {
       setShowVictimPopup(false);
     }
 
-    if (!isPlayerTurn) {
+    if (!isNowPlayerTurn) {
       setIsPlacingInitialVillage(false);
       setIsPlacingInitialRoad(false);
     } else {
@@ -199,7 +200,7 @@ export default function GameBoardPage() {
       {/* ... existing layout ... */}
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/5 bg-emerald-800 border-r border-emerald-700 flex flex-col justify-center p-4">
-          <PlayerPanel side="left" players={players} you={player} gameId={gameId} isPlayerTurn={isPlayerTurn} currentTradeOffer={game?.currentTradeOffer} />
+          <PlayerPanel side="left" players={players} you={player} gameId={gameId} isPlayerTurn={isPlayerTurn} playedDevCardThisRound={game?.playedDevCardThisRound} gameRound={game?.roundNumber} currentTradeOffer={game?.currentTradeOffer} />
         </div>
         <div
           className="flex-1 bg-slate-900 relative overflow-hidden"
@@ -246,6 +247,7 @@ export default function GameBoardPage() {
           log = {log}
           isPlayerTurn = {isPlayerTurn && (game?.state === 'IN_PROGRESS' || game?.state === 'FINISHED')}
           isBuildPhase = {game?.isBuildPhase}
+          game = {game}
         />
       </div>
 

@@ -39,10 +39,10 @@ npm run copy-and-deploy
 //erklärungen dev card DONE
 //dev cards left bank DONE
 //sounds
-//change logging 
+//change logging -> add history? add other messages: build, buy, move robber, steal...
 //add dice counter DONE
 //info nachricht bevor dev karte gepielt wird DONE
-//better info on what player has to do/cant do
+//better info on what player has to do/cant do DONE
 
 //on game list:
 //TODO check gamestate and sorting stuff of games

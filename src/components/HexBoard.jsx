@@ -198,7 +198,7 @@ export default function HexBoard({ board, onBuild, onBuildRoad, onMoveRobber, is
                             key={`p-${rIndex}-${cIndex}`}
                             isPlacingInitialRoad={isPlacingInitialRoad}
                             isBuildPhase={isBuildPhase}
-                            canPlaceRoad={pathData.canPlaceRoad && player && player.userId && !!pathData.canPlaceRoad.includes(player.userId)}
+                            canPlaceRoad={pathData.canPlaceRoad && player && player.canBuyRoad && player.userId && !!pathData.canPlaceRoad.includes(player.userId)}
                             canPlaceInitialRoad={pathData.canPlaceInitialRoad && player && player.userId && !!pathData.canPlaceInitialRoad.includes(player.userId)}
                             color={pathData.color} // e.g. "beige" or "red"
                             angle={angle}
@@ -230,7 +230,8 @@ export default function HexBoard({ board, onBuild, onBuildRoad, onMoveRobber, is
                         color={node.color} 
                         isPlacingInitialVillage={isPlacingInitialVillage}
                         isBuildPhase={isBuildPhase}
-                        canPlaceVillage={node.canPlaceVillage && player && player.userId && !!node.canPlaceVillage.includes(player.userId)}
+                        canPlaceVillage={node.canPlaceVillage && player && player.canBuyVillage && player.userId && !!node.canPlaceVillage.includes(player.userId)}
+                        canPlaceCity={player && player.canBuyCity}
                         buildFactor={node.buildFactor}
                         top={topPos}
                         left={leftPos}
