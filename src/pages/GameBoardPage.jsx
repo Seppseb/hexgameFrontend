@@ -9,6 +9,13 @@ import { getGame, sendReady, build, buildRoad, getUserInfo, moveRobber, chooseVi
 import DiceRollPopup from "../components/DiceRollPopup";
 import WinPopup from "../components/WinPopup";
 import { AnimatePresence } from "framer-motion";
+import { playSound } from "../utils/sounds";
+import roundStartSound from "../assets/sounds/SFX_impactjar01.wav";
+import roadSound from "../assets/sounds/SFX_impactwoodraw08.wav";
+import villageSound from "../assets/sounds/SFX_impactwoodraw01.wav";
+import citySound from "../assets/sounds/SFX_impactpunchbag02.wav";
+import robberSound from "../assets/sounds/SFX_impactbigmuffled07.wav";
+import victorySound from "../assets/sounds/brass_positive_long.wav";
 
 export default function GameBoardPage() {
   const [scale, setScale] = useState(1);
@@ -37,6 +44,7 @@ export default function GameBoardPage() {
 
   const handleWebSocketMessage = useCallback((event) => {
     fetchGame();
+    handleSounds(event);
     if (event.type === 'INITIAL_ROLL' && event.playerId === playerId) {
       if (event.message) {
         const dice1 = event.message[0];
@@ -62,6 +70,22 @@ export default function GameBoardPage() {
 
   const { isConnected } = useGameWebSocket(gameId, handleWebSocketMessage);
 
+  const handleSounds = (event) => {
+    if (event == null || event.type == null) return;
+    if (event.type === 'START_TURN' && event.playerId === playerId) {
+      playSound(roundStartSound, 0.7);
+    } else if (event.type == "BUILD_ROAD") {
+      playSound(roadSound, 0.7);
+    } else if (event.type == "BUILD_VILLAGE") {
+      playSound(villageSound, 0.7);
+    } else if (event.type == "BUILD_CITY") {
+      playSound(citySound, 0.7);
+    } else if (event.type == "MOVED_ROBBER") {
+      playSound(robberSound, 0.7);
+    } else if (event.type == "WON") {
+      playSound(victorySound, 0.7);
+    }
+  }
 
   useEffect(() => {
     if (isConnected) {
