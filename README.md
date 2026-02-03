@@ -27,26 +27,32 @@ npm run copy-and-deploy
 
 # TODO
 
-//unused dev cards umgedreht sehen DONE
-// res verdecken DONE
-// hide bank res option DONE
-//option standart zahlen verteilung DONE
-//würfeln erst später DONE
-//ritter kann auch vor würfeln gespielt werden DONE
-//win nachricht DONE
-//dev card round limit DONE
-//nur eine dev card pro runde DONE
-//erklärungen dev card DONE
-//dev cards left bank DONE
-//sounds
-//change logging -> add history? add other messages: build, buy, move robber, steal...
-//add dice counter DONE
-//info nachricht bevor dev karte gepielt wird DONE
-//better info on what player has to do/cant do DONE
+fix board generation in frontend for different sizes
+add support for safari -> localstorage
 
-//on game list:
-//TODO check gamestate and sorting stuff of games
-//TODO update avaliable games via socket
+unused dev cards umgedreht sehen DONE
+res verdecken DONE
+hide bank res option DONE
+option standart zahlen verteilung DONE
+würfeln erst später DONE
+ritter kann auch vor würfeln gespielt werden DONE
+win nachricht DONE
+dev card round limit DONE
+nur eine dev card pro runde DONE
+erklärungen dev card DONE
+dev cards left bank DONE
+sounds DONE
+change logging -> add history? add other messages: build, buy, move robber, steal...
+add dice counter DONE
+info nachricht bevor dev karte gepielt wird DONE
+better info on what player has to do/cant do DONE
 
-//old ideas:
-//add autoplay after some seconds
+on game list:
+TODO check gamestate and sorting stuff of games
+TODO update avaliable games via socket
+
+other:
+add database
+
+old ideas:
+add autoplay after some seconds

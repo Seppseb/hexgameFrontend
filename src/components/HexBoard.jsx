@@ -70,16 +70,16 @@ export default function HexBoard({ board, onBuild, onBuildRoad, onMoveRobber, is
       
       {/* LAYER 1: HEX TILES */}
       <div className="relative z-20 flex flex-col items-center">
-        {rowConfig.map((cols, rowIndex) => (
+        {board?.tiles?.map((row, rowIndex) => (
           <div
             key={rowIndex}
             className="flex justify-center"
             style={{
               marginTop: rowIndex === 0 ? 0 : "-12px", 
-              marginLeft: `${(5 - cols) * 1}px`, 
+              marginLeft: `${(5 - row?.length || 0) * 1}px`, 
             }}
           >
-            {Array.from({ length: cols }).map((_, colIndex) => (
+            {Array.from({ length: row?.length || 0 }).map((_, colIndex) => (
               <HexTile
                 key={`${rowIndex}-${colIndex}`}
                 type={board?.tiles?.[rowIndex]?.[colIndex]?.type || "water"}
