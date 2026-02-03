@@ -60,8 +60,10 @@ export default function GameDetailPage() {
   const handleJoin = async () => {
     if (!name || name.length < 1) return;
     const res = await joinGame(gameId, name);
-    if (res && res.data && res.data.userId)
+    if (res?.data?.userId) {
+      localStorage.setItem("userId", res.data.userId);
       setPlayerId(res.data.userId);
+    }
   };
   
   const handleContinue = async () => {

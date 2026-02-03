@@ -3,8 +3,17 @@ import axios from "axios";
 const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
 const API = axios.create({
-  baseURL:  API_BASE + "/api/games",
-  withCredentials: true,
+  baseURL: API_BASE + "/api/games",
+});
+
+API.interceptors.request.use((config) => {
+  const userId = localStorage.getItem("userId");
+
+  if (userId) {
+    config.headers["X-User-Id"] = userId;
+  }
+
+  return config;
 });
 
 export const listGames = () => API.get("");
