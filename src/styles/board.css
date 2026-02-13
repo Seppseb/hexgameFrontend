@@ -4,3 +4,9 @@
   );
   background-color: gray;
 }
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none;     /* IE */
+}

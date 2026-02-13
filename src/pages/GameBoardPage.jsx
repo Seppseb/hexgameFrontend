@@ -227,7 +227,7 @@ export default function GameBoardPage() {
           <PlayerPanel side="left" players={players} you={player} gameId={gameId} isPlayerTurn={isPlayerTurn} playedDevCardThisRound={game?.playedDevCardThisRound} gameRound={game?.roundNumber} currentTradeOffer={game?.currentTradeOffer} />
         </div>
         <div
-          className="flex-1 bg-slate-900 relative overflow-hidden"
+          className="flex-1 bg-slate-900 relative overflow-hidden no-select"
           onWheel={handleWheel}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
