@@ -480,7 +480,7 @@ export default function PlayerPanel({
                         const type = devTypeFromItem(dev);
                         const description = type ? devCardDescription[type] : "";
                         let canBePlayedThisRound = dev?.canBePlayedInRound <= gameRound && ((!playedDevCardThisRound) || type == "victoryPoint");
-                        return (isPlayerTurn && canBePlayed) ? (
+                        return (isPlayerTurn && canBePlayedThisRound) ? (
                           <React.Fragment key={`dev-${idx}`}>
                           <button
                             key={`dev-${idx}`}
