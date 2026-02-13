@@ -27,8 +27,21 @@ npm run copy-and-deploy
 
 # TODO
 
-fix board generation in frontend for different sizes
-add support for safari -> localstorage
+add more size configs backend
+Add water and invisible tiles for boat expantion
+Add Option number when Card given robber -> 7
+Show link to Copy after creating lobby
+Fix Lobby Name,Style..
+frontned only offer trade after dice and robber move
+add german option
+log list
+put is bools in sepetate funcs in backend
+show ressourcen given -> animation?
+
+look into initiak dice tthrow bug? no diethrow gamrowner?
+
+fix board generation in frontend for different sizes DONE
+add support for safari -> localstorage DONE
 
 unused dev cards umgedreht sehen DONE
 res verdecken DONE

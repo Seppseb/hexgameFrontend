@@ -1,7 +1,11 @@
 import React from 'react';
+import HexPort from './HexPort';
 
 export default function HexPath({ 
-  color, 
+  rIndex,
+  cIndex,
+  port,
+  color,
   isPlacingInitialRoad,
   isBuildPhase,
   canPlaceRoad,
@@ -12,10 +16,14 @@ export default function HexPath({
   onClick 
 }) {
 
-  if (color === null) return null; //color null means no build + no build possible
+  let pathVisible = color != null; //color null means no build + no build possible
 
-  if (color == "beige" && !(isPlacingInitialRoad && canPlaceInitialRoad) && !(isBuildPhase && canPlaceRoad)) return null; //beige-> buildspot, but only if initial buiild phase or build phase and spot ok
-
+  if (color == "beige") {
+    //beige-> buildspot, but only if initial buiild phase or build phase and spot ok
+    if (!(isPlacingInitialRoad && canPlaceInitialRoad) && !(isBuildPhase && canPlaceRoad)) {
+      pathVisible = false;
+    }
+  }
 
   // --- CONFIG ---
   // Map server colors to display colors
@@ -45,7 +53,7 @@ export default function HexPath({
       }}
     >
       {/* THE ROAD SEGMENT */}
-      <div 
+      { pathVisible &&  (<div 
         className="rounded-full shadow-sm flex-none"
         style={{
             backgroundColor: displayColor,
@@ -58,7 +66,13 @@ export default function HexPath({
             opacity: isInteractive ? 0.6 : 1,
             boxShadow: isInteractive ? 'none' : '0 2px 4px rgba(0,0,0,0.3)',
         }}
-      />
+      />)}
+
+        <HexPort 
+        key={`p-${rIndex}-${cIndex}`}
+        port={port}
+        angle={angle}
+    />
     </div>
   );
 }
