@@ -16,6 +16,8 @@ export default function GameDetailPage() {
 
   const navigate = useNavigate();
 
+  const [copied, setCopied] = useState(false);
+
   const handleWebSocketMessage = useCallback((event) => {
     if (event.game) {
       setGame(event.game);
@@ -38,9 +40,6 @@ export default function GameDetailPage() {
     const data = res.data.split(";");
     setPlayerId(data[0]);
     setName(data[1]);
-    console.log(res);
-    console.log(data);
-
   };
 
   useEffect(() => {
@@ -96,6 +95,18 @@ export default function GameDetailPage() {
     fetchUserInfo();
   }, [gameId]);
 
+  const copyGameLink = async () => {
+    const link = `${window.location.origin}/games/${gameId}`;
+  
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy link", err);
+    }
+  };
+
   useEffect(() => {
     setisOwner(playerId && game && game.ownerId && playerId === game.ownerId);
   }, [playerId, game]);
@@ -109,17 +120,7 @@ export default function GameDetailPage() {
       <p>
         Players {playerNumber}/4: {players}
       </p>
-      {!hasStarted && (
-        <div style={{ marginTop: "1rem" }}>
-        <input
-          placeholder="Your name"
-          value={name}
-          onChange={(e) => handleNameFieldChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <button onClick={handleJoin}>Join Game</button>
-
-        {isOwner && (
+      {!hasStarted && isOwner && (
           <button
             onClick={handleStartGame}
             style={{
@@ -130,26 +131,50 @@ export default function GameDetailPage() {
           >
             Start Game
           </button>
-        )}
-        {!isOwner && game && game.players && game.ownerId && game.players[game.ownerId] && game.players[game.ownerId].name && (
-          <button
-            style={{
-              marginLeft: "0.5rem",
-              backgroundColor: "green",
-              color: "white",
-            }}
-          >
-            Wait for {game.players[game.ownerId].name} to start the game
-          </button>
-        )}
+      )}
+      {!hasStarted && !isOwner && game && game.players && game.ownerId && game.players[game.ownerId] && game.players[game.ownerId].name && (
+        <button
+          style={{
+            marginLeft: "0.5rem",
+            backgroundColor: "green",
+            color: "white",
+          }}
+        >
+          Wait for {game.players[game.ownerId].name} to start the game
+        </button>
+      )}
+
+      {!hasStarted && (
+        <div style={{ marginTop: "1rem" }}>
+        <input
+          placeholder="Your name"
+          value={name}
+          onChange={(e) => handleNameFieldChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <button onClick={handleJoin}>Join Game</button>
         </div>
       )}
 
-    {hasStarted && (
-      <div style={{ marginTop: "1rem" }}>
-      <button onClick={handleContinue}>Continue to game</button>
+      {hasStarted && (
+        <div style={{ marginTop: "1rem" }}>
+        <button onClick={handleContinue}>Continue to game</button>
+        </div>
+      )}
+
+      <div style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>
+        <button
+          onClick={copyGameLink}
+          style={{
+            marginLeft: "0.5rem",
+            padding: "0.25rem 0.5rem",
+            cursor: "pointer"
+          }}
+        >
+          {copied ? "Copied!" : "Copy game link"}
+        </button>
       </div>
-    )}
+
     </div>
   );
 }

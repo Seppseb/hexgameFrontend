@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useGameListWebSocket } from "../hooks/useGameWebSocket";
 import { listGames } from "../api/gamesApi";
 import GameTable from "../components/GameTable";
 import GameFilter from "../components/GameFilter";
@@ -12,12 +13,18 @@ export default function GamesPage() {
 
   const navigate = useNavigate();
 
+  const handleWebSocketMessage = useCallback(() => {
+    fetchGames();
+  }, []);
+
+  const { isConnected } = useGameListWebSocket(handleWebSocketMessage);
+
 
   const fetchGames = async () => {
     try {
       setLoading(true);
       const res = await listGames();
-      console.log(res)
+      //console.log(res)
       setGames(res.data);
     } catch (err) {
       console.error("Failed to load games:", err);

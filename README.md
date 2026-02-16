@@ -27,22 +27,26 @@ npm run copy-and-deploy
 
 # TODO
 
-add more size configs backend
-Add water and invisible tiles for boat expantion
-Add Option number when Card given robber -> 7
-Show link to Copy after creating lobby
+
+add volume slider
 Fix Lobby Name,Style..
 frontned only offer trade after dice and robber move
 add german option
-log list
 put is bools in sepetate funcs in backend
 show ressourcen given -> animation?
+change logging -> add history? add other messages: build, buy, move robber, steal...
 
-look into initiak dice tthrow bug? no diethrow gamrowner?
+other:
+Add Option number when Card given robber -> 7
+Add water and invisible tiles for boat expantion
+add database
+add autoplay after some seconds
 
-fix board generation in frontend for different sizes DONE
-add support for safari -> localstorage DONE
 
+DONE:
+
+Show link to Copy after creating lobby DONE
+look into initial dice throw bug? no diethrow gameowner? -> not reproducable? DONE
 unused dev cards umgedreht sehen DONE
 res verdecken DONE
 hide bank res option DONE
@@ -55,17 +59,13 @@ nur eine dev card pro runde DONE
 erklärungen dev card DONE
 dev cards left bank DONE
 sounds DONE
-change logging -> add history? add other messages: build, buy, move robber, steal...
 add dice counter DONE
 info nachricht bevor dev karte gepielt wird DONE
 better info on what player has to do/cant do DONE
+fix board generation in frontend for different sizes DONE
+add support for safari -> localstorage DONE
+add more size configs backend DONE
 
 on game list:
-TODO check gamestate and sorting stuff of games
-TODO update avaliable games via socket
-
-other:
-add database
-
-old ideas:
-add autoplay after some seconds
+check gamestate and sorting stuff of games DONE
+update avaliable games via socket DONE

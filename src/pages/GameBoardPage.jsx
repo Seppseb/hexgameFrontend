@@ -89,7 +89,7 @@ export default function GameBoardPage() {
 
   useEffect(() => {
     if (isConnected) {
-      console.log("WebSocket connected — sending READY");
+      //console.log("WebSocket connected — sending READY");
       sendReady(gameId);
     }
   }, [isConnected, gameId]);
