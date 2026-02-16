@@ -115,66 +115,73 @@ export default function GameDetailPage() {
 
   return (
     <div>
-      <h2>Game {gameId}</h2>
-      <p>State: {game.state}</p>
-      <p>
-        Players {playerNumber}/4: {players}
-      </p>
-      {!hasStarted && isOwner && (
-          <button
-            onClick={handleStartGame}
-            style={{
-              marginLeft: "0.5rem",
-              backgroundColor: "green",
-              color: "white",
-            }}
-          >
-            Start Game
+      <h2 style={{marginBottom: "0.5rem"}}>Game Lobby</h2>
+      <p style={{color: "#888", fontSize: "0.9rem", marginBottom: "1rem"}}>Room Code: {gameId}</p>
+
+      <div style={{marginBottom: "1.5rem", fontWeight: "bold"}}>
+        {hasStarted ? "🟢 Game started" : "🟡 Waiting for players"}
+      </div>
+
+      <div style={{marginBottom: "1.5rem"}}>
+        <h3>Players ({playerNumber}/4)</h3>
+        <div style={{display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center"}}>
+          {game.players &&
+            Object.values(game.players).map((p) => (
+              <div key={p.id} style={{color: "#222", background: "#e8f0fe", padding: "0.4rem 0.6rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "bold"}}>
+                {p.name}
+              </div>
+            ))}
+
+          {Array.from({ length: 4 - playerNumber }).map((_, i) => (
+            <div key={i} style={{background: "#f1f3f5", padding: "0.4rem 0.6rem", borderRadius: "8px", fontSize: "0.85rem", color: "#888"}}>
+              ⬜ Empty
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {!hasStarted && (
+        <div style={{marginBottom: "1.5rem"}}>
+          <input
+            style={{padding: "0.5rem", borderRadius: "8px", border: "1px solid #ddd", marginRight: "0.5rem"}}
+            placeholder="Your name (max 15)"
+            value={name}
+            onChange={(e) => handleNameFieldChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button style={{padding: "0.5rem 0.8rem", borderRadius: "8px", border: "none", background: "#4c8bf5", color: "white", cursor: "pointer"}} onClick={handleJoin}>
+            {playerId == null || !game?.players?.hasOwnProperty(playerId) ? "Join Game" : "Change Name"}
           </button>
+        </div>
       )}
-      {!hasStarted && !isOwner && game && game.players && game.ownerId && game.players[game.ownerId] && game.players[game.ownerId].name && (
-        <button
-          style={{
-            marginLeft: "0.5rem",
-            backgroundColor: "green",
-            color: "white",
-          }}
-        >
-          Wait for {game.players[game.ownerId].name} to start the game
+
+      {!hasStarted && game && Object.keys(game?.players).length >= 2 && isOwner && (
+        <button style={{width: "100%", padding: "0.7rem", borderRadius: "10px", border: "none", background: "#22c55e", color: "white", fontWeight: "bold", cursor: "pointer", marginBottom: "1rem"}} onClick={handleStartGame}>
+          ▶ Start Game
         </button>
       )}
 
-      {!hasStarted && (
-        <div style={{ marginTop: "1rem" }}>
-        <input
-          placeholder="Your name"
-          value={name}
-          onChange={(e) => handleNameFieldChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <button onClick={handleJoin}>Join Game</button>
-        </div>
+      {!hasStarted && game && Object.keys(game?.players).length < 2 && (
+        <p style={{color: "#666", marginBottom: "1rem"}}>
+          Waiting for 2 players...
+        </p>
+      )}
+
+      {!hasStarted && game && Object.keys(game?.players).length >= 2 && !isOwner && (
+        <p style={{color: "#666", marginBottom: "1rem"}}>
+          Waiting for <strong>{game.players?.[game.ownerId]?.name}</strong> to start...
+        </p>
       )}
 
       {hasStarted && (
-        <div style={{ marginTop: "1rem" }}>
-        <button onClick={handleContinue}>Continue to game</button>
-        </div>
+        <button style={{width: "100%", padding: "0.7rem", borderRadius: "10px", border: "none", background: "#22c55e", color: "white", fontWeight: "bold", cursor: "pointer", marginBottom: "1rem"}} onClick={handleContinue}>
+          ↪ Continue to Game
+        </button>
       )}
 
-      <div style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>
-        <button
-          onClick={copyGameLink}
-          style={{
-            marginLeft: "0.5rem",
-            padding: "0.25rem 0.5rem",
-            cursor: "pointer"
-          }}
-        >
-          {copied ? "Copied!" : "Copy game link"}
-        </button>
-      </div>
-
+      <button style={{background: "transparent", border: "none", color: "#4c8bf5", cursor: "pointer"}} onClick={copyGameLink}>
+        {copied ? "✔ Link copied!" : "Invite Friends"}
+      </button>
     </div>
   );
 }
