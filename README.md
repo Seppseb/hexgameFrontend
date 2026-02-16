@@ -29,7 +29,6 @@ npm run copy-and-deploy
 
 
 add volume slider
-Fix Lobby Name,Style..
 frontned only offer trade after dice and robber move
 add german option
 put is bools in sepetate funcs in backend
@@ -45,6 +44,7 @@ add autoplay after some seconds
 
 DONE:
 
+Fix Lobby Name,Style.. DONE
 Show link to Copy after creating lobby DONE
 look into initial dice throw bug? no diethrow gameowner? -> not reproducable? DONE
 unused dev cards umgedreht sehen DONE
